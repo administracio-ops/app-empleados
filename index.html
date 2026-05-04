@@ -20,8 +20,19 @@
   .pantalla.activa { display: block; }
 
   /* LOGIN */
-  #pantalla-login { background: #0A0A0A; color: white; display: none; flex-direction: column; justify-content: center; max-width: 420px; margin: 0 auto; }
+  #pantalla-login { background: #0A0A0A; color: white; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 0; }
   #pantalla-login.activa { display: flex; }
+  .login-marca { display: none; }
+  .login-box { width: 100%; max-width: 440px; padding: 48px 40px; }
+  @media (min-width: 900px) {
+    #pantalla-login { flex-direction: row; }
+    .login-marca { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 60px; border-right: 1px solid #1a1a1a; }
+    .login-marca .logo { font-size: 48px; margin-bottom: 16px; }
+    .login-marca .tagline { color: #555; font-size: 16px; line-height: 1.6; max-width: 340px; }
+    .login-box { flex: 0 0 480px; padding: 60px 56px; }
+    .login-box .logo { display: none; }
+    .login-box .subtitulo { margin-bottom: 36px; }
+  }
   .logo { font-size: 32px; font-weight: 800; letter-spacing: -1px; margin-bottom: 8px; }
   .logo span { color: #FFD234; }
   .subtitulo { color: #888; margin-bottom: 32px; font-size: 14px; }
@@ -167,18 +178,24 @@
 
 <!-- LOGIN -->
 <div id="pantalla-login" class="pantalla activa">
-  <div class="logo">App<span>.</span>Empleados</div>
-  <div class="subtitulo">Introduce tus datos para entrar</div>
-  <div class="campo">
-    <label>Nº de empleado</label>
-    <input type="text" id="input-id" placeholder="TR001" autocomplete="off" autocapitalize="characters">
+  <div class="login-marca">
+    <div class="logo">App<span>.</span>Empleados</div>
+    <div class="tagline">Gestión de fichajes, nóminas y equipo — todo en un solo lugar.</div>
   </div>
-  <div class="campo">
-    <label>PIN</label>
-    <input type="tel" id="input-pin" placeholder="1234" maxlength="6" inputmode="numeric" autocomplete="off">
+  <div class="login-box">
+    <div class="logo" style="margin-bottom:8px">App<span>.</span>Empleados</div>
+    <div class="subtitulo">Introduce tus datos para entrar</div>
+    <div class="campo">
+      <label>Nº de empleado</label>
+      <input type="text" id="input-id" placeholder="TR001" autocomplete="off" autocapitalize="characters">
+    </div>
+    <div class="campo">
+      <label>PIN</label>
+      <input type="tel" id="input-pin" placeholder="1234" maxlength="6" inputmode="numeric" autocomplete="off">
+    </div>
+    <button class="btn-principal" id="btn-login">Entrar</button>
+    <div class="error" id="error-login"></div>
   </div>
-  <button class="btn-principal" id="btn-login">Entrar</button>
-  <div class="error" id="error-login"></div>
 </div>
 
 <!-- EMPLEADO -->
