@@ -510,6 +510,8 @@ const TRADUCCIONES = {
     confirmBorrarTrabajador: (n) => `¿Borrar a ${n}? Esta acción no se puede deshacer.`,
     confirmBorrarObra: (n) => `¿Borrar la obra "${n}"? Esta acción no se puede deshacer.`,
     trabajadorCreado: (id) => `Trabajador creado — ID: ${id}`,
+    sinNominas: 'Sin nóminas', sinNominasTodavia: 'No hay nóminas todavía',
+    firmada: 'Firmada', sinFichajes: 'Sin fichajes', sinGps: 'Sin GPS', gpsActivo: 'GPS ✓',
   },
   ca: {
     tagline: 'Gestió de fitxades, nòmines i equip — tot en un sol lloc.',
@@ -539,6 +541,8 @@ const TRADUCCIONES = {
     confirmBorrarTrabajador: (n) => `Esborrar a ${n}? Aquesta acció no es pot desfer.`,
     confirmBorrarObra: (n) => `Esborrar l'obra "${n}"? Aquesta acció no es pot desfer.`,
     trabajadorCreado: (id) => `Treballador creat — ID: ${id}`,
+    sinNominas: 'Sense nòmines', sinNominasTodavia: 'Encara no hi ha nòmines',
+    firmada: 'Signada', sinFichajes: 'Sense fitxades', sinGps: 'Sense GPS', gpsActivo: 'GPS ✓',
   },
   pt: {
     tagline: 'Gestão de registos, folhas de pagamento e equipa — tudo num só lugar.',
@@ -568,6 +572,8 @@ const TRADUCCIONES = {
     confirmBorrarTrabajador: (n) => `Apagar ${n}? Esta ação não pode ser desfeita.`,
     confirmBorrarObra: (n) => `Apagar a obra "${n}"? Esta ação não pode ser desfeita.`,
     trabajadorCreado: (id) => `Trabalhador criado — ID: ${id}`,
+    sinNominas: 'Sem folhas', sinNominasTodavia: 'Ainda não há folhas',
+    firmada: 'Assinada', sinFichajes: 'Sem registos', sinGps: 'Sem GPS', gpsActivo: 'GPS ✓',
   }
 };
 
@@ -746,15 +752,15 @@ async function cargarDatosAdmin() {
     listaTrabajadores = res.trabajadores || [];
     document.getElementById('subt-trabajadores').textContent = listaTrabajadores.length + ' registrados';
     document.getElementById('tabla-trabajadores').innerHTML = listaTrabajadores.length
-      ? listaTrabajadores.map(t => `<tr>
-          <td><code style="background:#f0f0f0;padding:2px 6px;border-radius:4px;font-size:12px;">${t.id}</code></td>
-          <td><b>${t.nombre}</b></td><td><code>${t.pin}</code></td>
-          <td><span class="badge ${t.rol === 'admin' ? 'badge-amarillo' : 'badge-gris'}">${t.rol}</span></td>
-          <td>${t.horas_pactadas}h</td>
-          <td><span class="badge ${t.activo ? 'badge-verde' : 'badge-rojo'}">${t.activo ? 'Activo' : 'Inactivo'}</span></td>
-          <td><button class="btn-eliminar" onclick="eliminarTrabajador('${t.id}','${t.nombre}')">Borrar</button></td>
+      ? listaTrabajadores.map(tr => `<tr>
+          <td><code style="background:#f0f0f0;padding:2px 6px;border-radius:4px;font-size:12px;">${tr.id}</code></td>
+          <td><b>${tr.nombre}</b></td><td><code>${tr.pin}</code></td>
+          <td><span class="badge ${tr.rol === 'admin' ? 'badge-amarillo' : 'badge-gris'}">${tr.rol}</span></td>
+          <td>${tr.horas_pactadas}h</td>
+          <td><span class="badge ${tr.activo ? 'badge-verde' : 'badge-rojo'}">${tr.activo ? t('activo') : t('inactivo')}</span></td>
+          <td><button class="btn-eliminar" onclick="eliminarTrabajador('${tr.id}','${tr.nombre}')">${t('borrar')}</button></td>
         </tr>`).join('')
-      : '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px;">Sin trabajadores</td></tr>';
+      : `<tr><td colspan="6" style="text-align:center;color:#999;padding:20px;">${t('sinTrabajadores')}</td></tr>`;
 
     const obras = res.obras || [];
     document.getElementById('subt-obras').textContent = obras.length + ' registradas';
@@ -762,10 +768,10 @@ async function cargarDatosAdmin() {
       ? obras.map(o => `<tr>
           <td><code style="background:#f0f0f0;padding:2px 6px;border-radius:4px;font-size:12px;">${o.id}</code></td>
           <td><b>${o.nombre}</b></td><td>${o.direccion || '—'}</td>
-          <td><span class="badge ${o.activa ? 'badge-verde' : 'badge-gris'}">${o.activa ? 'Activa' : 'Inactiva'}</span></td>
-          <td><span class="accion-link" onclick="verQR('${o.qr_token}','${o.nombre}')">Ver QR</span> · <span class="accion-link rojo" onclick="eliminarObra('${o.id}','${o.nombre}')">Borrar</span></td>
+          <td><span class="badge ${o.activa ? 'badge-verde' : 'badge-gris'}">${o.activa ? t('activa') : t('inactiva')}</span></td>
+          <td><span class="accion-link" onclick="verQR('${o.qr_token}','${o.nombre}')">Ver QR</span> · <span class="accion-link rojo" onclick="eliminarObra('${o.id}','${o.nombre}')">${t('borrar')}</span></td>
         </tr>`).join('')
-      : '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px;">Sin obras</td></tr>';
+      : `<tr><td colspan="5" style="text-align:center;color:#999;padding:20px;">${t('sinObras')}</td></tr>`;
 
     const fichajes = res.fichajes || [];
     document.getElementById('tabla-fichajes').innerHTML = fichajes.length
@@ -777,15 +783,15 @@ async function cargarDatosAdmin() {
           <td style="font-size:11px;">${f.lat ? parseFloat(f.lat).toFixed(4) : '—'}</td>
           <td style="font-size:11px;">${f.lng ? parseFloat(f.lng).toFixed(4) : '—'}</td>
         </tr>`).join('')
-      : '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px;">Sin fichajes</td></tr>';
+      : `<tr><td colspan="6" style="text-align:center;color:#999;padding:20px;">${t('sinFichajes')}</td></tr>`;
 
     document.getElementById('tabla-dashboard-fichajes').innerHTML = fichajes.slice(0, 8).map(f => `<tr>
         <td>${new Date(f.timestamp).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}</td>
         <td><b>${f.trabajador_id}</b></td>
         <td><span class="badge ${f.tipo === 'entrada' ? 'badge-verde' : 'badge-gris'}">${f.tipo}</span></td>
         <td>${f.obra_id}</td>
-        <td><span class="badge ${f.lat ? 'badge-verde' : 'badge-gris'}">${f.lat ? 'GPS ✓' : 'Sin GPS'}</span></td>
-      </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px;">Sin fichajes hoy</td></tr>';
+        <td><span class="badge ${f.lat ? 'badge-verde' : 'badge-gris'}">${f.lat ? t('gpsActivo') : t('sinGps')}</span></td>
+      </tr>`).join('') || `<tr><td colspan="5" style="text-align:center;color:#999;padding:20px;">${t('sinFihajesHoy')}</td></tr>`;
 
     const nominas = res.nominas || [];
     const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
@@ -800,7 +806,7 @@ async function cargarDatosAdmin() {
             ${n.estado === 'firmada' ? ` · <a href="${n.url_pdf}" download class="accion-link" style="color:#16a34a;">⬇ Descargar firmada</a>` : ''}
           </td>
         </tr>`).join('')
-      : '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px;">Sin nóminas</td></tr>';
+      : `<tr><td colspan="6" style="text-align:center;color:#999;padding:20px;">${t('sinNominas')}</td></tr>`;
 
   } catch(e) { console.error(e); }
 }
@@ -916,10 +922,22 @@ function leerArchivoBase64(file) {
 // ── FIRMA EMPLEADO ─────────────────────────────────────────
 let firmaGuardadaDataUrl = null;
 
-function abrirFirma(nominaId, urlPdf) {
+async function verPdfEmpleado(nominaId) {
+  toast(t('cargando'));
+  try {
+    const res = await llamarAPIPOST('empleado_get_pdf', { token: estado.token, nomina_id: nominaId });
+    if (!res.ok) { toast(res.error || 'Error al obtener PDF', 'error'); return; }
+    const bytes = Uint8Array.from(atob(res.pdf_base64), c => c.charCodeAt(0));
+    const blob = new Blob([bytes], { type: 'application/pdf' });
+    window.open(URL.createObjectURL(blob), '_blank');
+  } catch { toast('Error al obtener PDF', 'error'); }
+}
+
+function abrirFirma(nominaId) {
   nominaParaFirmar = nominaId;
-  nominaUrlPdf = urlPdf;
-  document.getElementById('firmar-ver-pdf').href = urlPdf;
+  const linkPdf = document.getElementById('firmar-ver-pdf');
+  linkPdf.href = '#';
+  linkPdf.onclick = (e) => { e.preventDefault(); verPdfEmpleado(nominaId); };
   document.getElementById('error-firmar').textContent = '';
 
   const clave = 'firma_' + (estado.trabajador?.id || 'emp');
@@ -1056,13 +1074,13 @@ async function refrescarEmpleado() {
       const btn = document.getElementById('btn-fichar');
       const estadoEl = document.getElementById('estado-actual');
       if (hoy.dentro) {
-        estadoEl.textContent = '🟢 Estás trabajando';
+        estadoEl.textContent = t('dentroTurno');
         btn.className = 'btn-fichar btn-salida';
-        btn.innerHTML = '📷 Fichar salida';
+        btn.innerHTML = t('ficharSalida');
       } else {
-        estadoEl.textContent = '⚪ Fuera de turno';
+        estadoEl.textContent = t('fueraTurno');
         btn.className = 'btn-fichar btn-entrada';
-        btn.innerHTML = '📷 Fichar entrada';
+        btn.innerHTML = t('ficharEntrada');
       }
     } else if (hoy.error && hoy.error.includes('Sesión')) { cerrarSesion(); return; }
   } catch {}
@@ -1082,19 +1100,19 @@ async function refrescarEmpleado() {
           <div class="nomina-info">
             <div class="mes">${meses[n.mes-1]} ${n.anio}</div>
             <div class="estado">${n.estado === 'firmada'
-              ? 'Firmada el ' + new Date(n.fecha_firma).toLocaleDateString('es-ES')
-              : 'Pendiente de firma'}</div>
+              ? t('firmadaEl') + ' ' + new Date(n.fecha_firma).toLocaleDateString('es-ES')
+              : t('pendienteFirma')}</div>
           </div>
           <div class="nomina-acciones">
             ${n.estado === 'firmada'
-              ? `<span class="badge-firmada">Firmada</span>`
-              : `<button class="btn-ver-pdf" onclick="window.open('${n.url_pdf}','_blank')">Ver PDF</button>
-                 <button class="btn-firmar" onclick="abrirFirma('${n.id}','${n.url_pdf}')">Firmar</button>`
+              ? `<span class="badge-firmada">${t('firmada')}</span>`
+              : `<button class="btn-ver-pdf" onclick="verPdfEmpleado('${n.id}')">${t('verPdf')}</button>
+                 <button class="btn-firmar" onclick="abrirFirma('${n.id}')">${t('firmar')}</button>`
             }
           </div>
         </div>`).join('');
     } else {
-      cont.innerHTML = '<div style="color:#999;font-size:13px;text-align:center;padding:12px 0;">No hay nóminas todavía</div>';
+      cont.innerHTML = `<div style="color:#999;font-size:13px;text-align:center;padding:12px 0;">${t('sinNominasTodavia')}</div>`;
     }
   } catch {}
 }
