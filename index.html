@@ -124,6 +124,17 @@
   .accion-link { color: #2563eb; cursor: pointer; font-weight: 600; font-size: 13px; }
   .accion-link:hover { text-decoration: underline; }
   .accion-link.rojo { color: #dc2626; }
+  .btn-eliminar { background: none; border: 1px solid #fca5a5; color: #dc2626; border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .btn-eliminar:hover { background: #fef2f2; }
+  /* FIRMA GUARDADA */
+  .firma-guardada-preview { background: #f9fafb; border: 2px solid #e5e5e5; border-radius: 12px; padding: 12px; text-align: center; margin-bottom: 12px; }
+  .firma-guardada-preview img { max-height: 80px; max-width: 100%; }
+  .firma-guardada-preview p { font-size: 12px; color: #666; margin-top: 6px; }
+  /* iOS INSTALL BANNER */
+  #ios-banner { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: #0A0A0A; color: white; padding: 16px 20px; z-index: 500; text-align: center; font-size: 13px; }
+  #ios-banner strong { display: block; font-size: 14px; margin-bottom: 4px; }
+  #ios-banner .ios-steps { color: #aaa; margin: 6px 0 10px; }
+  #ios-banner button { background: #FFD234; color: #0A0A0A; border: none; border-radius: 8px; padding: 8px 20px; font-weight: 700; cursor: pointer; }
 
   /* MODALES */
   .modal-bg { position: fixed; inset: 0; background: rgba(10,10,10,0.6); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; }
@@ -394,16 +405,24 @@
 <div class="modal-bg" id="modal-firmar-nomina">
   <div class="modal-card" style="max-width:520px;">
     <h2>Firmar nómina</h2>
-    <div class="subtit" id="firmar-subtit">Dibuja tu firma en el recuadro y confirma</div>
     <div style="background:#fffbeb;border-left:3px solid #FFD234;padding:12px;border-radius:8px;font-size:13px;margin-bottom:16px;">
       👆 Primero <a id="firmar-ver-pdf" href="#" target="_blank" style="color:#2563eb;font-weight:700;">abre la nómina</a> para revisarla, luego firma aquí.
     </div>
-    <div class="firma-wrap">
-      <canvas id="canvas-firma" width="460" height="160"></canvas>
-      <div class="firma-label">Dibuja tu firma con el dedo o el ratón</div>
+    <div id="firma-guardada-section" style="display:none;">
+      <div class="firma-guardada-preview">
+        <img id="firma-guardada-img" src="" alt="Tu firma guardada">
+        <p>Tu firma guardada — toca "Confirmar" para usarla</p>
+      </div>
+      <button class="btn btn-secundario" style="width:100%;margin-bottom:12px;" onclick="usarFirmaCanvas()">Dibujar firma nueva</button>
+    </div>
+    <div id="firma-canvas-section">
+      <div class="firma-wrap">
+        <canvas id="canvas-firma" width="460" height="160"></canvas>
+        <div class="firma-label">Dibuja tu firma con el dedo o el ratón</div>
+      </div>
     </div>
     <div style="display:flex;gap:10px;margin-top:12px;">
-      <button class="btn btn-secundario" onclick="limpiarFirma()">Limpiar</button>
+      <button class="btn btn-secundario" id="btn-limpiar-firma" onclick="limpiarFirma()">Limpiar</button>
       <button class="btn btn-secundario" style="flex:1;" onclick="cerrarModal('modal-firmar-nomina')">Cancelar</button>
       <button class="btn btn-primario" style="flex:1;" id="btn-confirmar-firma" onclick="procesarFirma()">✅ Confirmar firma</button>
     </div>
@@ -422,6 +441,12 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
+<div id="ios-banner">
+  <strong>Instala esta app en tu iPhone</strong>
+  <div class="ios-steps">Toca <b>Compartir</b> (el cuadrado con flecha) → <b>Añadir a pantalla de inicio</b></div>
+  <button onclick="document.getElementById('ios-banner').style.display='none'">Entendido</button>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
@@ -564,6 +589,7 @@ async function cargarDatosAdmin() {
           <td><span class="badge ${t.rol === 'admin' ? 'badge-amarillo' : 'badge-gris'}">${t.rol}</span></td>
           <td>${t.horas_pactadas}h</td>
           <td><span class="badge ${t.activo ? 'badge-verde' : 'badge-rojo'}">${t.activo ? 'Activo' : 'Inactivo'}</span></td>
+          <td><button class="btn-eliminar" onclick="eliminarTrabajador('${t.id}','${t.nombre}')">Borrar</button></td>
         </tr>`).join('')
       : '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px;">Sin trabajadores</td></tr>';
 
@@ -574,7 +600,7 @@ async function cargarDatosAdmin() {
           <td><code style="background:#f0f0f0;padding:2px 6px;border-radius:4px;font-size:12px;">${o.id}</code></td>
           <td><b>${o.nombre}</b></td><td>${o.direccion || '—'}</td>
           <td><span class="badge ${o.activa ? 'badge-verde' : 'badge-gris'}">${o.activa ? 'Activa' : 'Inactiva'}</span></td>
-          <td><span class="accion-link" onclick="verQR('${o.qr_token}','${o.nombre}')">Ver QR</span></td>
+          <td><span class="accion-link" onclick="verQR('${o.qr_token}','${o.nombre}')">Ver QR</span> · <span class="accion-link rojo" onclick="eliminarObra('${o.id}','${o.nombre}')">Borrar</span></td>
         </tr>`).join('')
       : '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px;">Sin obras</td></tr>';
 
@@ -722,13 +748,37 @@ function leerArchivoBase64(file) {
 }
 
 // ── FIRMA EMPLEADO ─────────────────────────────────────────
+let firmaGuardadaDataUrl = null;
+
 function abrirFirma(nominaId, urlPdf) {
   nominaParaFirmar = nominaId;
   nominaUrlPdf = urlPdf;
   document.getElementById('firmar-ver-pdf').href = urlPdf;
   document.getElementById('error-firmar').textContent = '';
-  limpiarFirma();
+
+  const clave = 'firma_' + (estado.trabajador?.id || 'emp');
+  const firmaSaved = localStorage.getItem(clave);
+
+  if (firmaSaved) {
+    firmaGuardadaDataUrl = firmaSaved;
+    document.getElementById('firma-guardada-img').src = firmaSaved;
+    document.getElementById('firma-guardada-section').style.display = 'block';
+    document.getElementById('firma-canvas-section').style.display = 'none';
+    document.getElementById('btn-limpiar-firma').style.display = 'none';
+  } else {
+    firmaGuardadaDataUrl = null;
+    usarFirmaCanvas();
+  }
+
   abrirModal('modal-firmar-nomina');
+  if (!firmaSaved) inicializarCanvas();
+}
+
+function usarFirmaCanvas() {
+  firmaGuardadaDataUrl = null;
+  document.getElementById('firma-guardada-section').style.display = 'none';
+  document.getElementById('firma-canvas-section').style.display = 'block';
+  document.getElementById('btn-limpiar-firma').style.display = '';
   inicializarCanvas();
 }
 
@@ -776,9 +826,14 @@ async function procesarFirma() {
   const err = document.getElementById('error-firmar');
   err.textContent = '';
 
-  const pixeles = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data;
-  const hayFirma = Array.from(pixeles).some((v, i) => i % 4 === 3 && v > 0);
-  if (!hayFirma) { err.textContent = 'Dibuja tu firma antes de confirmar'; return; }
+  let sigDataUrl = firmaGuardadaDataUrl;
+
+  if (!sigDataUrl) {
+    const pixeles = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data;
+    const hayFirma = Array.from(pixeles).some((v, i) => i % 4 === 3 && v > 0);
+    if (!hayFirma) { err.textContent = 'Dibuja tu firma antes de confirmar'; return; }
+    sigDataUrl = canvas.toDataURL('image/png');
+  }
 
   const btn = document.getElementById('btn-confirmar-firma');
   btn.disabled = true;
@@ -790,15 +845,13 @@ async function procesarFirma() {
     if (!pdfRes.ok) { err.textContent = pdfRes.error || 'Error al obtener el PDF'; return; }
 
     toast('Añadiendo firma al PDF…');
-    const pdfBytes  = Uint8Array.from(atob(pdfRes.pdf_base64), c => c.charCodeAt(0));
-    const pdfDoc    = await PDFLib.PDFDocument.load(pdfBytes);
-    const sigDataUrl = canvas.toDataURL('image/png');
-    const sigBytes  = Uint8Array.from(atob(sigDataUrl.split(',')[1]), c => c.charCodeAt(0));
-    const sigImg    = await pdfDoc.embedPng(sigBytes);
+    const pdfBytes = Uint8Array.from(atob(pdfRes.pdf_base64), c => c.charCodeAt(0));
+    const pdfDoc   = await PDFLib.PDFDocument.load(pdfBytes);
+    const sigBytes = Uint8Array.from(atob(sigDataUrl.split(',')[1]), c => c.charCodeAt(0));
+    const sigImg   = await pdfDoc.embedPng(sigBytes);
 
-    const paginas  = pdfDoc.getPages();
-    const ultima   = paginas[paginas.length - 1];
-    const { width, height } = ultima.getSize();
+    const ultima = pdfDoc.getPages()[pdfDoc.getPageCount() - 1];
+    const { width } = ultima.getSize();
     ultima.drawImage(sigImg, { x: width - 180, y: 30, width: 150, height: 55 });
 
     const pdfFirmadoBytes = await pdfDoc.save();
@@ -808,10 +861,12 @@ async function procesarFirma() {
 
     toast('Guardando nómina firmada…');
     const res = await llamarAPIPOST('empleado_firmar_nomina', {
-      token: estado.token, nomina_id: nominaParaFirmar, pdf_firmado: pdfFirmadoB64
+      token: estado.token, nomina_id: nominaParaFirmar, pdf_firmado_base64: pdfFirmadoB64
     });
 
     if (res.ok) {
+      const clave = 'firma_' + (estado.trabajador?.id || 'emp');
+      localStorage.setItem(clave, sigDataUrl);
       cerrarModal('modal-firmar-nomina');
       toast('¡Nómina firmada correctamente!', 'exito');
       refrescarEmpleado();
@@ -925,12 +980,47 @@ async function procesarQR(qrToken) {
   }, () => { toast('No se pudo obtener tu ubicación GPS', 'error'); }, { enableHighAccuracy: true, timeout: 10000 });
 }
 
+// ── ELIMINAR TRABAJADOR / OBRA ─────────────────────────────
+async function eliminarTrabajador(id, nombre) {
+  if (!confirm(`¿Borrar a ${nombre}? Esta acción no se puede deshacer.`)) return;
+  try {
+    const res = await llamarAPI('admin_eliminar_trabajador', { token: estado.token, id });
+    if (res.ok) { toast('Trabajador eliminado', 'exito'); cargarDatosAdmin(); }
+    else toast(res.error || 'Error al eliminar', 'error');
+  } catch { toast('Error de conexión', 'error'); }
+}
+
+async function eliminarObra(id, nombre) {
+  if (!confirm(`¿Borrar la obra "${nombre}"? Esta acción no se puede deshacer.`)) return;
+  try {
+    const res = await llamarAPI('admin_eliminar_obra', { token: estado.token, id });
+    if (res.ok) { toast('Obra eliminada', 'exito'); cargarDatosAdmin(); }
+    else toast(res.error || 'Error al eliminar', 'error');
+  } catch { toast('Error de conexión', 'error'); }
+}
+
 // ── INIT ───────────────────────────────────────────────────
 window.addEventListener('load', () => {
   const sesion = cargarSesion();
   if (sesion) {
     estado.token = sesion.token; estado.rol = sesion.rol; estado.trabajador = sesion.trabajador;
     entrarApp();
+  }
+
+  // Service Worker (PWA Android)
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+
+  // Banner iOS install
+  const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const esSafari = /safari/i.test(navigator.userAgent) && !/chrome/i.test(navigator.userAgent);
+  const yaInstalada = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  if (esIOS && esSafari && !yaInstalada && !localStorage.getItem('ios_banner_cerrado')) {
+    document.getElementById('ios-banner').style.display = 'block';
+    document.querySelector('#ios-banner button').addEventListener('click', () => {
+      localStorage.setItem('ios_banner_cerrado', '1');
+    });
   }
 });
 </script>
