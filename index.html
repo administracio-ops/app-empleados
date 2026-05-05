@@ -1152,16 +1152,28 @@ function escanearFrame() {
 }
 async function procesarQR(qrToken) {
   cerrarEscaner();
-  toast('QR detectado, obteniendo ubicación…');
-  navigator.geolocation.getCurrentPosition(async (pos) => {
+  toast('QR detectado, fichando…');
+
+  const ficharConCoords = async (lat, lng) => {
     try {
-      const res = await llamarAPI('fichar', { token: estado.token, qr_token: qrToken, lat: pos.coords.latitude, lng: pos.coords.longitude });
+      const res = await llamarAPI('fichar', { token: estado.token, qr_token: qrToken, lat, lng });
       if (res.ok) {
         toast(`✅ ${res.tipo === 'entrada' ? 'Entrada' : 'Salida'} en ${res.obra} a las ${res.hora}`, 'exito');
         refrescarEmpleado();
       } else { toast(res.error || 'Error al fichar', 'error'); }
     } catch { toast('Error de conexión', 'error'); }
-  }, () => { toast('No se pudo obtener tu ubicación GPS', 'error'); }, { enableHighAccuracy: true, timeout: 10000 });
+  };
+
+  if (navigator.geolocation) {
+    const timer = setTimeout(() => ficharConCoords('', ''), 6000);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => { clearTimeout(timer); ficharConCoords(pos.coords.latitude, pos.coords.longitude); },
+      ()    => { clearTimeout(timer); ficharConCoords('', ''); },
+      { enableHighAccuracy: false, timeout: 6000, maximumAge: 30000 }
+    );
+  } else {
+    ficharConCoords('', '');
+  }
 }
 
 // ── ELIMINAR TRABAJADOR / OBRA ─────────────────────────────
