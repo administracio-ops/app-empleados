@@ -323,8 +323,7 @@
 <div class="modal-bg" id="modal-nuevo-trabajador">
   <div class="modal-card">
     <h2>Nuevo trabajador</h2>
-    <div class="subtit">El PIN puede ser cualquier número de 4 dígitos</div>
-    <div class="campo-form"><label>ID (ej: TR003)</label><input type="text" id="nw-id" placeholder="TR003" autocapitalize="characters"></div>
+    <div class="subtit">El ID se genera automáticamente</div>
     <div class="campo-form"><label>Nombre completo</label><input type="text" id="nw-nombre" placeholder="Juan García López"></div>
     <div class="campo-form"><label>Nombre corto</label><input type="text" id="nw-corto" placeholder="Juan"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
@@ -345,7 +344,6 @@
   <div class="modal-card">
     <h2>Nueva obra</h2>
     <div class="subtit">Se generará un QR único para imprimir y pegar en la obra</div>
-    <div class="campo-form"><label>ID (ej: OB001)</label><input type="text" id="no-id" placeholder="OB001" autocapitalize="characters"></div>
     <div class="campo-form"><label>Nombre de la obra</label><input type="text" id="no-nombre" placeholder="Reforma Calle Mayor 12"></div>
     <div class="campo-form"><label>Dirección</label><input type="text" id="no-dir" placeholder="C/ Mayor 12, Madrid"></div>
     <div style="display:flex;gap:10px;margin-top:12px;">
@@ -507,8 +505,9 @@ document.getElementById('btn-login').addEventListener('click', async () => {
   try {
     const res = await llamarAPI('login', { id, pin });
     if (!res.ok) { errorEl.textContent = res.error || 'Error desconocido'; btn.disabled = false; btn.textContent = 'Entrar'; return; }
-    estado.token = res.token; estado.rol = res.rol; estado.trabajador = res.trabajador;
-    guardarSesion(res.token, res.rol, res.trabajador, res.expira);
+    estado.token = res.token; estado.rol = res.trabajador.rol; estado.trabajador = res.trabajador;
+    const expira = new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString();
+    guardarSesion(res.token, res.trabajador.rol, res.trabajador, expira);
     entrarApp();
   } catch {
     errorEl.textContent = 'Error de conexión. Inténtalo de nuevo.';
@@ -629,7 +628,6 @@ document.querySelectorAll('.modal-bg').forEach(m => {
 });
 
 async function crearTrabajador() {
-  const id = document.getElementById('nw-id').value.trim().toUpperCase();
   const nombre = document.getElementById('nw-nombre').value.trim();
   const corto  = document.getElementById('nw-corto').value.trim();
   const pin    = document.getElementById('nw-pin').value.trim();
@@ -637,24 +635,23 @@ async function crearTrabajador() {
   const rol    = document.getElementById('nw-rol').value;
   const err    = document.getElementById('error-nuevo-trabajador');
   err.textContent = '';
-  if (!id || !nombre || !pin) { err.textContent = 'ID, nombre y PIN son obligatorios'; return; }
+  if (!nombre || !pin) { err.textContent = 'Nombre y PIN son obligatorios'; return; }
   try {
-    const res = await llamarAPI('admin_crear_trabajador', { token: estado.token, id, nombre, nombre_corto: corto || nombre.split(' ')[0], pin, rol, horas_pactadas: horas });
-    if (res.ok) { cerrarModal('modal-nuevo-trabajador'); toast('Trabajador creado', 'exito'); cargarDatosAdmin(); }
+    const res = await llamarAPI('admin_crear_trabajador', { token: estado.token, nombre, nombre_corto: corto || nombre.split(' ')[0], pin, rol, horas_pactadas: horas });
+    if (res.ok) { cerrarModal('modal-nuevo-trabajador'); toast('Trabajador creado — ID: ' + res.id, 'exito'); cargarDatosAdmin(); }
     else err.textContent = res.error || 'Error al crear';
   } catch { err.textContent = 'Error de conexión'; }
 }
 
 async function crearObra() {
-  const id     = document.getElementById('no-id').value.trim().toUpperCase();
   const nombre = document.getElementById('no-nombre').value.trim();
   const dir    = document.getElementById('no-dir').value.trim();
   const err    = document.getElementById('error-nueva-obra');
   err.textContent = '';
-  if (!id || !nombre) { err.textContent = 'ID y nombre son obligatorios'; return; }
+  if (!nombre) { err.textContent = 'El nombre es obligatorio'; return; }
   try {
-    const res = await llamarAPI('admin_crear_obra', { token: estado.token, id, nombre, direccion: dir });
-    if (res.ok) { cerrarModal('modal-nueva-obra'); toast('Obra creada. QR disponible en la tabla.', 'exito'); cargarDatosAdmin(); }
+    const res = await llamarAPI('admin_crear_obra', { token: estado.token, nombre, direccion: dir });
+    if (res.ok) { cerrarModal('modal-nueva-obra'); toast('Obra creada — ID: ' + res.id, 'exito'); cargarDatosAdmin(); }
     else err.textContent = res.error || 'Error al crear';
   } catch { err.textContent = 'Error de conexión'; }
 }
