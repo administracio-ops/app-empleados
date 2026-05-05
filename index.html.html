@@ -505,8 +505,9 @@ document.getElementById('btn-login').addEventListener('click', async () => {
   try {
     const res = await llamarAPI('login', { id, pin });
     if (!res.ok) { errorEl.textContent = res.error || 'Error desconocido'; btn.disabled = false; btn.textContent = 'Entrar'; return; }
-    estado.token = res.token; estado.rol = res.rol; estado.trabajador = res.trabajador;
-    guardarSesion(res.token, res.rol, res.trabajador, res.expira);
+    estado.token = res.token; estado.rol = res.trabajador.rol; estado.trabajador = res.trabajador;
+    const expira = new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString();
+    guardarSesion(res.token, res.trabajador.rol, res.trabajador, expira);
     entrarApp();
   } catch {
     errorEl.textContent = 'Error de conexión. Inténtalo de nuevo.';
