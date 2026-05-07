@@ -247,9 +247,10 @@
   </div>
   <div class="tarjeta">
     <div class="tarjeta-titulo">Resumen del mes</div>
-    <div class="stats">
-      <div><div class="stat-num" id="stat-mes-horas">—</div><div class="stat-label">horas este mes</div></div>
-      <div><div class="stat-num" id="stat-mes-pactadas">—</div><div class="stat-label">horas pactadas</div></div>
+    <div class="stats" style="grid-template-columns:1fr 1fr 1fr;">
+      <div><div class="stat-num" id="stat-mes-horas">—</div><div class="stat-label" id="lbl-horas-mes">horas este mes</div></div>
+      <div><div class="stat-num" id="stat-mes-ordinarias" style="color:#16a34a;">—</div><div class="stat-label" id="lbl-ordinarias">ordinarias</div></div>
+      <div><div class="stat-num" id="stat-mes-extras" style="color:#dc2626;">—</div><div class="stat-label" id="lbl-extras">extras</div></div>
     </div>
   </div>
   <div class="tarjeta">
@@ -267,6 +268,7 @@
       <div class="nav-item" data-pag="trabajadores"><span class="icono">👥</span><span>Trabajadores</span></div>
       <div class="nav-item" data-pag="obras"><span class="icono">🏗️</span><span>Obras</span></div>
       <div class="nav-item" data-pag="fichajes"><span class="icono">⏱️</span><span>Fichajes</span></div>
+      <div class="nav-item" data-pag="horas"><span class="icono">📈</span><span>Horas</span></div>
       <div class="nav-item" data-pag="nominas"><span class="icono">📄</span><span>Nóminas</span></div>
     </nav>
     <div class="sidebar-foot">
@@ -337,6 +339,36 @@
           <thead><tr><th>Fecha · Hora</th><th>Empleado</th><th>Tipo</th><th>Obra</th><th>Lat</th><th>Lng</th></tr></thead>
           <tbody id="tabla-fichajes"><tr><td colspan="6" style="text-align:center;color:#999;padding:20px;">Cargando…</td></tr></tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- HORAS -->
+    <div class="admin-pagina" id="pag-horas">
+      <div class="page-header">
+        <div><h1>Informe de horas</h1><div class="subt">Horas ordinarias y extras por semana</div></div>
+      </div>
+      <div class="panel" style="padding:20px 24px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
+          <label style="font-weight:600;font-size:14px;">Semana:</label>
+          <input type="week" id="semana-input" style="padding:10px 14px;border:2px solid #e5e5e5;border-radius:10px;font-size:14px;outline:none;">
+          <button class="btn btn-primario" onclick="cargarInformeHoras()">Ver informe</button>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="tabla">
+            <thead>
+              <tr>
+                <th>Empleado</th>
+                <th>Lun</th><th>Mar</th><th>Mié</th><th>Jue</th><th>Vie</th><th>Sáb</th><th>Dom</th>
+                <th>Total</th>
+                <th style="color:#16a34a;">Ordinarias</th>
+                <th style="color:#dc2626;">Extras</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-horas">
+              <tr><td colspan="11" style="text-align:center;color:#999;padding:24px;">Selecciona una semana y pulsa "Ver informe"</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -478,7 +510,7 @@
 <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 
 <script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbxaTYZPNrLA8TAH1x1x5A-E5yrbkjCH65idzIey6J6wLfryPY3Hl5jjkbo5c65KZu5I/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzvYmJK8rokG78DSsWbKKO5VRXSg0n2cc9S-AxrlHU3JKMnCHp-h-BH5K723bBz_udQ/exec';
 
 // ── IDIOMAS ────────────────────────────────────────────────
 const TRADUCCIONES = {
@@ -491,7 +523,7 @@ const TRADUCCIONES = {
     errorConexion: 'Error de conexión. Inténtalo de nuevo.',
     hola: 'Hola,', salir: 'Salir', cerrarSesion: 'Cerrar sesión',
     trabajadasHoy: 'trabajadas hoy',
-    resumenMes: 'Resumen del mes', horasMes: 'horas este mes', horasPactadas: 'horas pactadas',
+    resumenMes: 'Resumen del mes', horasMes: 'horas este mes', horasOrdinarias: 'ordinarias', horasExtras: 'extras',
     misNominas: 'Mis nóminas', cargando: 'Cargando…',
     ficharEntrada: '📷 Fichar entrada', ficharSalida: '📷 Fichar salida',
     dentroTurno: '🟢 Estás trabajando', fueraTurno: '⚪ Fuera de turno',
@@ -522,7 +554,7 @@ const TRADUCCIONES = {
     errorConexion: 'Error de connexió. Torna-ho a intentar.',
     hola: 'Hola,', salir: 'Sortir', cerrarSesion: 'Tancar sessió',
     trabajadasHoy: 'treballades avui',
-    resumenMes: 'Resum del mes', horasMes: 'hores aquest mes', horasPactadas: 'hores pactades',
+    resumenMes: 'Resum del mes', horasMes: 'hores aquest mes', horasOrdinarias: 'ordinàries', horasExtras: 'extres',
     misNominas: 'Les meves nòmines', cargando: 'Carregant…',
     ficharEntrada: '📷 Fitxar entrada', ficharSalida: '📷 Fitxar sortida',
     dentroTurno: '🟢 Estàs treballant', fueraTurno: '⚪ Fora de torn',
@@ -553,7 +585,7 @@ const TRADUCCIONES = {
     errorConexion: 'Erro de ligação. Tente novamente.',
     hola: 'Olá,', salir: 'Sair', cerrarSesion: 'Fechar sessão',
     trabajadasHoy: 'trabalhadas hoje',
-    resumenMes: 'Resumo do mês', horasMes: 'horas este mês', horasPactadas: 'horas acordadas',
+    resumenMes: 'Resumo do mês', horasMes: 'horas este mês', horasOrdinarias: 'ordinárias', horasExtras: 'extras',
     misNominas: 'As minhas folhas', cargando: 'A carregar…',
     ficharEntrada: '📷 Registar entrada', ficharSalida: '📷 Registar saída',
     dentroTurno: '🟢 Está a trabalhar', fueraTurno: '⚪ Fora de turno',
@@ -608,9 +640,12 @@ function aplicarIdioma() {
   });
   document.querySelector('.label-hoy').textContent = T.trabajadasHoy;
   document.querySelector('.tarjeta-titulo').textContent = T.resumenMes;
-  const statLabels = document.querySelectorAll('.stat-label');
-  if (statLabels[0]) statLabels[0].textContent = T.horasMes;
-  if (statLabels[1]) statLabels[1].textContent = T.horasPactadas;
+  const lblHorasMes = document.getElementById('lbl-horas-mes');
+  if (lblHorasMes) lblHorasMes.textContent = T.horasMes;
+  const lblOrdinarias = document.getElementById('lbl-ordinarias');
+  if (lblOrdinarias) lblOrdinarias.textContent = T.horasOrdinarias || 'ordinarias';
+  const lblExtras = document.getElementById('lbl-extras');
+  if (lblExtras) lblExtras.textContent = T.horasExtras || 'extras';
   document.querySelectorAll('.tarjeta-titulo')[1] && (document.querySelectorAll('.tarjeta-titulo')[1].textContent = T.misNominas);
   // Admin nav
   const navItems = document.querySelectorAll('.nav-item span:not(.icono)');
@@ -725,6 +760,30 @@ function entrarApp() {
     mostrarPantalla('pantalla-empleado');
     refrescarEmpleado();
   }
+}
+
+// ── INFORME DE HORAS ───────────────────────────────────────
+async function cargarInformeHoras() {
+  const semanaInput = document.getElementById('semana-input').value;
+  if (!semanaInput) { toast('Selecciona una semana', 'error'); return; }
+  const tbody = document.getElementById('tbody-horas');
+  tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;color:#999;padding:24px;">Cargando…</td></tr>';
+  try {
+    const res = await llamarAPI('admin_informe_horas', { token: estado.token, semana: semanaInput });
+    if (!res.ok) { toast(res.error || 'Error', 'error'); return; }
+    const empleados = res.empleados || [];
+    if (!empleados.length) {
+      tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;color:#999;padding:24px;">Sin fichajes esta semana</td></tr>';
+      return;
+    }
+    tbody.innerHTML = empleados.map(e => `<tr>
+      <td><b>${e.nombre}</b></td>
+      ${e.dias.map(h => `<td>${h > 0 ? h.toFixed(1) + 'h' : '—'}</td>`).join('')}
+      <td><b>${e.total.toFixed(1)}h</b></td>
+      <td style="color:#16a34a;font-weight:700;">${e.ordinarias.toFixed(1)}h</td>
+      <td style="color:${e.extras > 0 ? '#dc2626' : '#aaa'};font-weight:${e.extras > 0 ? '700' : '400'};">${e.extras.toFixed(1)}h</td>
+    </tr>`).join('');
+  } catch(err) { toast('Error de conexión', 'error'); }
 }
 
 // ── NAVEGACIÓN ADMIN ───────────────────────────────────────
@@ -1087,7 +1146,13 @@ async function refrescarEmpleado() {
 
   try {
     const mes = await llamarAPI('resumen_mensual', { token: estado.token });
-    if (mes.ok) document.getElementById('stat-mes-horas').textContent = mes.horas_totales;
+    if (mes.ok) {
+      document.getElementById('stat-mes-horas').textContent = mes.horas_totales + 'h';
+      const extras = mes.horas_extras || 0;
+      const ordinarias = Math.max(0, Math.round((mes.horas_totales - extras) * 10) / 10);
+      document.getElementById('stat-mes-ordinarias').textContent = ordinarias + 'h';
+      document.getElementById('stat-mes-extras').textContent = extras + 'h';
+    }
   } catch {}
 
   try {
