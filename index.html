@@ -756,6 +756,7 @@ function entrarApp() {
     cargarDatosAdmin();
   } else {
     document.getElementById('nombre-empleado').textContent = estado.trabajador.nombre_corto || estado.trabajador.nombre;
+    document.getElementById('stat-mes-pactadas').textContent = estado.trabajador.horas_pactadas || '—';
     mostrarPantalla('pantalla-empleado');
     refrescarEmpleado();
   }
