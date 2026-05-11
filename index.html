@@ -1,0 +1,1708 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0A0A0A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Empleados">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="icon" type="image/png" href="icon.png">
+<title>App Empleados</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow-x: hidden; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #F5F5F5; color: #0A0A0A; -webkit-font-smoothing: antialiased; }
+
+  .pantalla { display: none; min-height: 100vh; padding: 24px; }
+  .pantalla.activa { display: block; }
+
+  /* LOGIN */
+  #pantalla-login { background: #0A0A0A; color: white; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 0; }
+  #pantalla-login.activa { display: flex; }
+  .login-marca { display: none; color: white; }
+  .login-box { width: 100%; max-width: 440px; padding: 48px 40px; }
+  @media (min-width: 900px) {
+    #pantalla-login { flex-direction: row; }
+    .login-marca { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 60px; border-right: 1px solid #1a1a1a; }
+    .login-marca .logo { font-size: 48px; margin-bottom: 16px; color: white; }
+    .login-marca .tagline { color: #888; font-size: 16px; line-height: 1.7; max-width: 340px; }
+    .login-box { flex: 0 0 480px; padding: 60px 56px; }
+    .login-box .logo { display: none; }
+    .login-box .subtitulo { margin-bottom: 36px; }
+  }
+  .logo { font-size: 32px; font-weight: 800; letter-spacing: -1px; margin-bottom: 8px; }
+  .logo span { color: #FFD234; }
+  .subtitulo { color: #888; margin-bottom: 32px; font-size: 14px; }
+  .campo { margin-bottom: 16px; }
+  .campo label { display: block; font-size: 12px; color: #888; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .campo input { width: 100%; padding: 16px; border: 2px solid #222; border-radius: 12px; background: #111; color: white; font-size: 18px; font-weight: 600; transition: border-color 0.2s; }
+  .campo input:focus { outline: none; border-color: #FFD234; }
+  .btn-principal { width: 100%; padding: 18px; border: none; border-radius: 12px; background: #FFD234; color: #0A0A0A; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 8px; }
+  .btn-principal:active { transform: scale(0.98); }
+  .btn-principal:disabled { opacity: 0.5; cursor: not-allowed; }
+  .error { color: #ff4444; font-size: 14px; margin-top: 12px; min-height: 20px; }
+
+  /* EMPLEADO */
+  #pantalla-empleado { max-width: 480px; margin: 0 auto; }
+  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+  .header .saludo { font-size: 14px; color: #666; }
+  .header .nombre { font-size: 20px; font-weight: 700; }
+  .header .salir { background: none; border: none; color: #666; font-size: 13px; cursor: pointer; padding: 8px; }
+  .tarjeta-fichaje { background: white; border-radius: 20px; padding: 28px 24px; box-shadow: 0 2px 16px rgba(0,0,0,0.06); margin-bottom: 16px; text-align: center; }
+  .estado-actual { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #666; margin-bottom: 4px; }
+  .horas-hoy { font-size: 48px; font-weight: 800; letter-spacing: -2px; line-height: 1; }
+  .horas-hoy small { font-size: 20px; font-weight: 500; color: #666; }
+  .label-hoy { font-size: 13px; color: #666; margin-top: 4px; margin-bottom: 24px; }
+  .btn-fichar { width: 100%; padding: 22px; border: none; border-radius: 14px; font-size: 18px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
+  .btn-fichar:active { transform: scale(0.98); }
+  .btn-entrada { background: #16a34a; color: white; }
+  .btn-salida  { background: #dc2626; color: white; }
+  .btn-pausa   { background: #f59e0b; color: white; }
+  .btn-vuelta  { background: #2563eb; color: white; }
+  .tarjeta { background: white; border-radius: 16px; padding: 20px; margin-bottom: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
+  .tarjeta-titulo { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #666; margin-bottom: 12px; font-weight: 600; }
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .stat-num { font-size: 28px; font-weight: 800; letter-spacing: -1px; }
+  .stat-label { font-size: 12px; color: #666; }
+  .nomina-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid #f0f0f0; gap: 10px; }
+  .nomina-item:last-child { border-bottom: none; }
+  .nomina-info .mes { font-weight: 700; font-size: 15px; }
+  .nomina-info .estado { font-size: 12px; color: #666; }
+  .nomina-acciones { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+  .badge-pendiente { background: #FFD234; color: #0A0A0A; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+  .badge-firmada { background: #dcfce7; color: #16a34a; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+  .btn-firmar { background: #0A0A0A; color: white; border: none; border-radius: 8px; padding: 8px 14px; font-size: 12px; font-weight: 700; cursor: pointer; }
+  .btn-ver-pdf { background: none; color: #2563eb; border: none; font-size: 12px; font-weight: 600; cursor: pointer; text-decoration: underline; }
+
+  /* ADMIN ESCRITORIO */
+  #pantalla-admin { padding: 0; }
+  #pantalla-admin.activa { display: flex; min-height: 100vh; }
+  .sidebar { width: 240px; background: #0A0A0A; color: white; padding: 24px 0; flex-shrink: 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; }
+  .sidebar-logo { padding: 0 24px 24px; border-bottom: 1px solid #1a1a1a; font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
+  .sidebar-logo span { color: #FFD234; }
+  .sidebar-logo small { display: block; font-size: 11px; color: #666; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+  .sidebar-nav { padding: 16px 0; flex: 1; }
+  .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 24px; color: #ccc; cursor: pointer; font-size: 14px; font-weight: 500; transition: background 0.15s; border-left: 3px solid transparent; }
+  .nav-item:hover { background: #111; color: white; }
+  .nav-item.activo { background: #111; color: #FFD234; border-left-color: #FFD234; }
+  .nav-item .icono { font-size: 18px; width: 22px; text-align: center; }
+  .sidebar-foot { padding: 16px 24px; border-top: 1px solid #1a1a1a; font-size: 12px; color: #666; }
+  .sidebar-foot button { background: none; border: none; color: #888; font-size: 12px; cursor: pointer; margin-top: 6px; display: block; }
+  .sidebar-foot button:hover { color: #FFD234; }
+  .admin-main { flex: 1; padding: 32px 40px; overflow-y: auto; }
+  .page-header { margin-bottom: 28px; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px; }
+  .page-header h1 { font-size: 28px; font-weight: 800; letter-spacing: -1px; }
+  .page-header .subt { color: #666; font-size: 14px; margin-top: 4px; }
+  .admin-pagina { display: none; }
+  .admin-pagina.activa { display: block; }
+  .btn { border: none; border-radius: 10px; padding: 12px 20px; font-size: 14px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+  .btn:active { transform: scale(0.97); }
+  .btn-primario { background: #FFD234; color: #0A0A0A; }
+  .btn-secundario { background: white; color: #0A0A0A; border: 1px solid #ddd; }
+  .btn-peligro { background: #dc2626; color: white; }
+  .grid-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 28px; }
+  .kpi { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
+  .kpi-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: #666; font-weight: 600; }
+  .kpi-num { font-size: 36px; font-weight: 800; letter-spacing: -1.5px; margin-top: 6px; }
+  .kpi-detalle { font-size: 12px; color: #16a34a; margin-top: 4px; font-weight: 600; }
+  .kpi-detalle.rojo { color: #dc2626; }
+  .panel { background: white; border-radius: 14px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); margin-bottom: 20px; }
+  .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+  .panel-header h3 { font-size: 16px; font-weight: 700; }
+  .tabla { width: 100%; border-collapse: collapse; }
+  .tabla th, .tabla td { padding: 12px 8px; text-align: left; font-size: 13px; border-bottom: 1px solid #f0f0f0; }
+  .tabla th { background: #fafafa; font-weight: 700; color: #666; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .tabla tr:hover td { background: #fafafa; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+  .badge-verde { background: #dcfce7; color: #16a34a; }
+  .badge-amarillo { background: #fef3c7; color: #92400e; }
+  .badge-rojo { background: #fee2e2; color: #dc2626; }
+  .badge-gris { background: #f0f0f0; color: #666; }
+  .punto-vivo { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #16a34a; margin-right: 6px; animation: pulso 1.5s infinite; }
+  @keyframes pulso { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .accion-link { color: #2563eb; cursor: pointer; font-weight: 600; font-size: 13px; }
+  .accion-link:hover { text-decoration: underline; }
+  .accion-link.rojo { color: #dc2626; }
+  .btn-eliminar { background: none; border: 1px solid #fca5a5; color: #dc2626; border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .btn-eliminar:hover { background: #fef2f2; }
+  /* FIRMA GUARDADA */
+  .firma-guardada-preview { background: #f9fafb; border: 2px solid #e5e5e5; border-radius: 12px; padding: 12px; text-align: center; margin-bottom: 12px; }
+  .firma-guardada-preview img { max-height: 80px; max-width: 100%; }
+  .firma-guardada-preview p { font-size: 12px; color: #666; margin-top: 6px; }
+  /* iOS INSTALL BANNER */
+  #ios-banner { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: #0A0A0A; color: white; padding: 16px 20px; z-index: 500; text-align: center; font-size: 13px; }
+  #ios-banner strong { display: block; font-size: 14px; margin-bottom: 4px; }
+  #ios-banner .ios-steps { color: #aaa; margin: 6px 0 10px; }
+  #ios-banner button { background: #FFD234; color: #0A0A0A; border: none; border-radius: 8px; padding: 8px 20px; font-weight: 700; cursor: pointer; }
+
+  /* MODALES */
+  .modal-bg { position: fixed; inset: 0; background: rgba(10,10,10,0.6); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; }
+  .modal-bg.activa { display: flex; }
+  .modal-card { background: white; border-radius: 16px; padding: 28px; max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; }
+  .modal-card h2 { font-size: 20px; margin-bottom: 6px; font-weight: 800; }
+  .modal-card .subtit { color: #666; font-size: 13px; margin-bottom: 20px; }
+  .campo-form { margin-bottom: 14px; }
+  .campo-form label { display: block; font-size: 12px; font-weight: 600; color: #666; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.4px; }
+  .campo-form input, .campo-form select { width: 100%; padding: 12px 14px; border: 1.5px solid #e5e5e5; border-radius: 10px; font-size: 14px; font-family: inherit; transition: border-color 0.15s; background: white; }
+  .campo-form input:focus, .campo-form select:focus { outline: none; border-color: #0A0A0A; }
+
+  /* DROP ZONE */
+  .drop-zone { border: 2px dashed #d4d4d4; border-radius: 12px; padding: 28px 20px; text-align: center; cursor: pointer; transition: all 0.15s; background: #fafafa; }
+  .drop-zone:hover, .drop-zone.activa { border-color: #FFD234; background: #fffbeb; }
+  .drop-zone .dz-icono { font-size: 32px; margin-bottom: 8px; }
+  .drop-zone .dz-texto { font-size: 14px; font-weight: 600; }
+  .drop-zone .dz-sub { font-size: 12px; color: #666; margin-top: 4px; }
+  .drop-zone .dz-nombre { font-size: 13px; font-weight: 700; color: #16a34a; margin-top: 8px; }
+
+  /* SELECTOR IDIOMA */
+  .lang-selector { display: flex; gap: 6px; margin-top: 16px; }
+  .lang-btn { background: none; border: 1px solid #333; color: #888; border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+  .lang-btn:hover { border-color: #FFD234; color: #FFD234; }
+  .lang-btn.activo { background: #FFD234; color: #0A0A0A; border-color: #FFD234; }
+  .lang-selector-sidebar { display: flex; gap: 4px; margin-top: 8px; }
+  .lang-selector-sidebar .lang-btn { border-color: #222; font-size: 11px; padding: 3px 8px; }
+
+  /* CANVAS FIRMA */
+  .firma-wrap { border: 2px solid #e5e5e5; border-radius: 12px; background: white; overflow: hidden; position: relative; }
+  .firma-wrap canvas { display: block; touch-action: none; cursor: crosshair; }
+  .firma-label { font-size: 11px; color: #999; text-align: center; padding: 6px; border-top: 1px solid #f0f0f0; }
+
+  /* MODAL CÁMARA */
+  .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 200; display: none; flex-direction: column; }
+  .modal.activa { display: flex; }
+  .modal-header { padding: 16px; color: white; display: flex; justify-content: space-between; align-items: center; }
+  .modal-cerrar { background: none; border: none; color: white; font-size: 24px; cursor: pointer; }
+  #video { flex: 1; width: 100%; object-fit: cover; }
+  .modal-info { padding: 20px; color: white; text-align: center; font-size: 14px; }
+
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #0A0A0A; color: white; padding: 14px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; z-index: 300; box-shadow: 0 4px 20px rgba(0,0,0,0.3); opacity: 0; pointer-events: none; transition: opacity 0.3s; max-width: 90%; text-align: center; }
+  .toast.visible { opacity: 1; }
+  .toast.exito { background: #16a34a; }
+  .toast.error { background: #dc2626; }
+  .loader { display: inline-block; width: 18px; height: 18px; border: 3px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 768px) {
+    .sidebar { width: 64px; }
+    .sidebar-logo small, .nav-item span:not(.icono), .sidebar-foot span { display: none; }
+    .sidebar-logo { font-size: 14px; padding: 0 12px 24px; }
+    .nav-item { padding: 14px; justify-content: center; }
+    .admin-main { padding: 20px 16px; }
+    .sidebar-foot { padding: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="pantalla-login" class="pantalla activa">
+  <div class="login-marca">
+    <div class="logo">App<span>.</span>Empleados</div>
+    <div class="tagline">Gestión de fichajes, nóminas y equipo — todo en un solo lugar.</div>
+  </div>
+  <div class="login-box">
+    <div class="logo" style="margin-bottom:8px">App<span>.</span>Empleados</div>
+    <div class="subtitulo">Introduce tus datos para entrar</div>
+    <div class="campo">
+      <label>Nº de empleado</label>
+      <input type="text" id="input-id" placeholder="TR001" autocomplete="off" autocapitalize="characters">
+    </div>
+    <div class="campo">
+      <label>PIN</label>
+      <input type="tel" id="input-pin" placeholder="1234" maxlength="6" inputmode="numeric" autocomplete="off">
+    </div>
+    <button class="btn-principal" id="btn-login">Entrar</button>
+    <div class="error" id="error-login"></div>
+    <div class="lang-selector">
+      <button class="lang-btn activo" onclick="cambiarIdioma('es')">ES</button>
+      <button class="lang-btn" onclick="cambiarIdioma('ca')">CA</button>
+      <button class="lang-btn" onclick="cambiarIdioma('pt')">PT</button>
+    </div>
+  </div>
+</div>
+
+<!-- EMPLEADO -->
+<div id="pantalla-empleado" class="pantalla">
+  <div class="header">
+    <div>
+      <div class="saludo" data-i18n="hola">Hola,</div>
+      <div class="nombre" id="nombre-empleado">—</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div style="display:flex;gap:4px;">
+        <button class="lang-btn activo" onclick="cambiarIdioma('es')" style="border-color:#ddd;color:#666;font-size:11px;padding:3px 7px;">ES</button>
+        <button class="lang-btn" onclick="cambiarIdioma('ca')" style="border-color:#ddd;color:#666;font-size:11px;padding:3px 7px;">CA</button>
+        <button class="lang-btn" onclick="cambiarIdioma('pt')" style="border-color:#ddd;color:#666;font-size:11px;padding:3px 7px;">PT</button>
+      </div>
+      <button class="salir" data-i18n="salir" onclick="cerrarSesion()">Salir</button>
+    </div>
+  </div>
+  <div class="tarjeta-fichaje">
+    <div class="estado-actual" id="estado-actual">Cargando…</div>
+    <div class="horas-hoy" id="horas-hoy">0<small>h</small> 0<small>min</small></div>
+    <div class="label-hoy">trabajadas hoy</div>
+    <button class="btn-fichar btn-entrada" id="btn-fichar" onclick="abrirEscaner()">📷 Fichar entrada</button>
+  </div>
+  <div class="tarjeta">
+    <div class="tarjeta-titulo">Resumen del mes</div>
+    <div class="stats" style="grid-template-columns:1fr 1fr 1fr;">
+      <div><div class="stat-num" id="stat-mes-horas">—</div><div class="stat-label" id="lbl-horas-mes">horas este mes</div></div>
+      <div><div class="stat-num" id="stat-mes-ordinarias" style="color:#16a34a;">—</div><div class="stat-label" id="lbl-ordinarias">ordinarias</div></div>
+      <div><div class="stat-num" id="stat-mes-extras" style="color:#dc2626;">—</div><div class="stat-label" id="lbl-extras">extras</div></div>
+    </div>
+  </div>
+  <div class="tarjeta">
+    <div class="tarjeta-titulo">Mis nóminas</div>
+    <div id="lista-nominas"><div style="color:#999;font-size:13px;text-align:center;padding:12px 0;">Cargando…</div></div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="pantalla-admin" class="pantalla">
+  <aside class="sidebar">
+    <div class="sidebar-logo">Panel<span>.</span>Admin<small>App Empleados</small></div>
+    <nav class="sidebar-nav">
+      <div class="nav-item activo" data-pag="dashboard"><span class="icono">📊</span><span>Dashboard</span></div>
+      <div class="nav-item" data-pag="trabajadores"><span class="icono">👥</span><span>Trabajadores</span></div>
+      <div class="nav-item" data-pag="obras"><span class="icono">🏗️</span><span>Obras</span></div>
+      <div class="nav-item" data-pag="fichajes"><span class="icono">⏱️</span><span>Fichajes</span></div>
+      <div class="nav-item" data-pag="horas"><span class="icono">📈</span><span>Horas</span></div>
+      <div class="nav-item" data-pag="nominas"><span class="icono">📄</span><span>Nóminas</span></div>
+    </nav>
+    <div class="sidebar-foot">
+      <span>Sesión: <b id="nombre-admin">—</b></span><br>
+      <button data-i18n="cerrarSesion" onclick="cerrarSesion()">Cerrar sesión</button>
+      <div class="lang-selector-sidebar">
+        <button class="lang-btn activo" onclick="cambiarIdioma('es')">ES</button>
+        <button class="lang-btn" onclick="cambiarIdioma('ca')">CA</button>
+        <button class="lang-btn" onclick="cambiarIdioma('pt')">PT</button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="admin-main">
+    <!-- DASHBOARD -->
+    <div class="admin-pagina activa" id="pag-dashboard">
+      <div class="page-header">
+        <div><h1>Dashboard</h1><div class="subt">Vista general · <span id="fecha-hoy"></span></div></div>
+      </div>
+      <div class="grid-kpis">
+        <div class="kpi"><div class="kpi-label">Trabajando ahora</div><div class="kpi-num" id="kpi-activos">—</div><div class="kpi-detalle"><span class="punto-vivo"></span>en tiempo real</div></div>
+        <div class="kpi"><div class="kpi-label">Fichajes hoy</div><div class="kpi-num" id="kpi-fichajes-hoy">—</div><div class="kpi-detalle">entradas + salidas</div></div>
+        <div class="kpi"><div class="kpi-label">Nóminas pendientes</div><div class="kpi-num" id="kpi-nominas">—</div><div class="kpi-detalle rojo">sin firmar</div></div>
+        <div class="kpi"><div class="kpi-label">Obras activas</div><div class="kpi-num" id="kpi-obras">—</div><div class="kpi-detalle">con QR activo</div></div>
+        <div class="kpi"><div class="kpi-label">Alertas GPS hoy</div><div class="kpi-num" id="kpi-alertas" style="color:#dc2626;">—</div><div class="kpi-detalle rojo">fuera de perímetro</div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><h3><span class="punto-vivo"></span>Últimos fichajes</h3></div>
+        <table class="tabla">
+          <thead><tr><th>Fecha</th><th>Empleado</th><th>Entrada</th><th>Salida</th><th>Duración</th><th>Obra</th></tr></thead>
+          <tbody id="tabla-dashboard-fichajes"><tr><td colspan="6" style="text-align:center;color:#999;padding:20px;">Cargando…</td></tr></tbody>
+        </table>
+      </div>
+      <div class="panel" id="panel-alertas-gps">
+        <div class="panel-header"><h3>⚠️ Alertas GPS — Fuera de perímetro</h3><button class="btn btn-secundario" style="font-size:12px;padding:6px 12px;" onclick="cargarAlertasGPS()">Actualizar</button></div>
+        <table class="tabla">
+          <thead><tr><th>Empleado</th><th>Obra</th><th>Salió del perímetro</th><th>Volvió</th><th>Duración fuera</th><th>Distancia máx.</th></tr></thead>
+          <tbody id="tabla-alertas-gps"><tr><td colspan="6" style="text-align:center;color:#999;padding:20px;">Sin alertas hoy</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TRABAJADORES -->
+    <div class="admin-pagina" id="pag-trabajadores">
+      <div class="page-header">
+        <div><h1>Trabajadores</h1><div class="subt" id="subt-trabajadores">—</div></div>
+        <button class="btn btn-primario" onclick="abrirModal('modal-nuevo-trabajador')">+ Nuevo trabajador</button>
+      </div>
+      <div class="panel">
+        <table class="tabla">
+          <thead><tr><th>ID</th><th>Nombre</th><th>PIN</th><th>Rol</th><th>H. pactadas</th><th>Estado</th><th>Acciones</th></tr></thead>
+          <tbody id="tabla-trabajadores"><tr><td colspan="7" style="text-align:center;color:#999;padding:20px;">Cargando…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- OBRAS -->
+    <div class="admin-pagina" id="pag-obras">
+      <div class="page-header">
+        <div><h1>Obras</h1><div class="subt" id="subt-obras">—</div></div>
+        <button class="btn btn-primario" onclick="abrirModal('modal-nueva-obra')">+ Nueva obra</button>
+      </div>
+      <div class="panel">
+        <table class="tabla">
+          <thead><tr><th>Código</th><th>Nombre</th><th>Dirección</th><th>Estado</th><th>GPS</th><th>Acciones</th></tr></thead>
+          <tbody id="tabla-obras"><tr><td colspan="5" style="text-align:center;color:#999;padding:20px;">Cargando…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- FICHAJES -->
+    <div class="admin-pagina" id="pag-fichajes">
+      <div class="page-header"><div><h1>Fichajes</h1><div class="subt">Filtra por empleado y mes</div></div></div>
+      <div class="panel" style="padding:20px 24px 0;">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px;">
+          <select id="filtro-empleado" style="padding:8px 12px;border:2px solid #e5e5e5;border-radius:8px;font-size:14px;min-width:180px;">
+            <option value="">Todos los empleados</option>
+          </select>
+          <select id="filtro-mes" style="padding:8px 12px;border:2px solid #e5e5e5;border-radius:8px;font-size:14px;">
+            <option value="">Todos los meses</option>
+            <option value="0">Enero</option><option value="1">Febrero</option><option value="2">Marzo</option>
+            <option value="3">Abril</option><option value="4">Mayo</option><option value="5">Junio</option>
+            <option value="6">Julio</option><option value="7">Agosto</option><option value="8">Septiembre</option>
+            <option value="9">Octubre</option><option value="10">Noviembre</option><option value="11">Diciembre</option>
+          </select>
+          <input type="number" id="filtro-anio" placeholder="Año" value="2026" style="padding:8px 10px;border:2px solid #e5e5e5;border-radius:8px;font-size:14px;width:88px;">
+          <button class="btn btn-primario" onclick="filtrarFichajes()">Filtrar</button>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="tabla">
+            <thead><tr><th>Fecha</th><th>Empleado</th><th>Entrada</th><th>Salida</th><th>Duración</th><th>Obra</th><th>GPS entrada</th><th>GPS salida</th><th>Distancia</th></tr></thead>
+            <tbody id="tabla-fichajes"><tr><td colspan="9" style="text-align:center;color:#999;padding:20px;">Cargando…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- HORAS -->
+    <div class="admin-pagina" id="pag-horas">
+      <div class="page-header">
+        <div><h1>Informe de horas</h1><div class="subt">Horas ordinarias y extras por semana</div></div>
+      </div>
+      <div class="panel" style="padding:20px 24px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
+          <label style="font-weight:600;font-size:14px;">Semana:</label>
+          <input type="week" id="semana-input" style="padding:10px 14px;border:2px solid #e5e5e5;border-radius:10px;font-size:14px;outline:none;">
+          <button class="btn btn-primario" onclick="cargarInformeHoras()">Ver informe</button>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="tabla">
+            <thead>
+              <tr>
+                <th>Empleado</th>
+                <th>Lun</th><th>Mar</th><th>Mié</th><th>Jue</th><th>Vie</th><th>Sáb</th><th>Dom</th>
+                <th>Total</th>
+                <th style="color:#16a34a;">Ordinarias</th>
+                <th style="color:#dc2626;">Extras</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-horas">
+              <tr><td colspan="11" style="text-align:center;color:#999;padding:24px;">Selecciona una semana y pulsa "Ver informe"</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- NÓMINAS -->
+    <div class="admin-pagina" id="pag-nominas">
+      <div class="page-header">
+        <div><h1>Nóminas</h1><div class="subt">Sube PDFs y descarga los firmados por los empleados</div></div>
+        <button class="btn btn-primario" onclick="abrirModalSubirNomina()">📤 Subir nómina</button>
+      </div>
+      <div class="panel">
+        <table class="tabla">
+          <thead><tr><th>ID</th><th>Empleado</th><th>Mes</th><th>Año</th><th>Estado</th><th>Acciones</th></tr></thead>
+          <tbody id="tabla-nominas"><tr><td colspan="6" style="text-align:center;color:#999;padding:20px;">Cargando…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- MODAL EDITAR TRABAJADOR -->
+<div class="modal-bg" id="modal-editar-trabajador">
+  <div class="modal-card">
+    <h2>Editar trabajador</h2>
+    <div class="subtit" id="et-subtit">—</div>
+    <div class="campo-form"><label>Nombre completo</label><input type="text" id="et-nombre" placeholder="Juan García López"></div>
+    <div class="campo-form"><label>Nombre corto</label><input type="text" id="et-corto" placeholder="Juan"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="campo-form"><label>PIN</label><input type="tel" id="et-pin" placeholder="1234" maxlength="6"></div>
+      <div class="campo-form"><label>H. pactadas/semana</label><input type="number" id="et-horas"></div>
+    </div>
+    <div class="campo-form"><label>Estado</label><select id="et-activo"><option value="true">Activo</option><option value="false">Inactivo</option></select></div>
+    <div style="display:flex;gap:10px;margin-top:12px;">
+      <button class="btn btn-secundario" style="flex:1;" onclick="cerrarModal('modal-editar-trabajador')">Cancelar</button>
+      <button class="btn btn-primario" style="flex:1;" onclick="guardarTrabajador()">Guardar cambios</button>
+    </div>
+    <div class="error" id="error-editar-trabajador"></div>
+  </div>
+</div>
+
+<!-- MODAL NUEVO TRABAJADOR -->
+<div class="modal-bg" id="modal-nuevo-trabajador">
+  <div class="modal-card">
+    <h2>Nuevo trabajador</h2>
+    <div class="subtit">El ID se genera automáticamente</div>
+    <div class="campo-form"><label>Nombre completo</label><input type="text" id="nw-nombre" placeholder="Juan García López"></div>
+    <div class="campo-form"><label>Nombre corto</label><input type="text" id="nw-corto" placeholder="Juan"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="campo-form"><label>PIN</label><input type="tel" id="nw-pin" placeholder="1234" maxlength="6"></div>
+      <div class="campo-form"><label>H. pactadas/semana</label><input type="number" id="nw-horas" value="40"></div>
+    </div>
+    <div class="campo-form"><label>Rol</label><select id="nw-rol"><option value="empleado">Empleado</option><option value="admin">Admin</option></select></div>
+    <div style="display:flex;gap:10px;margin-top:12px;">
+      <button class="btn btn-secundario" style="flex:1;" onclick="cerrarModal('modal-nuevo-trabajador')">Cancelar</button>
+      <button class="btn btn-primario" style="flex:1;" onclick="crearTrabajador()">Crear</button>
+    </div>
+    <div class="error" id="error-nuevo-trabajador"></div>
+  </div>
+</div>
+
+<!-- MODAL NUEVA OBRA -->
+<div class="modal-bg" id="modal-nueva-obra">
+  <div class="modal-card">
+    <h2>Nueva obra</h2>
+    <div class="subtit">Se generará un QR único para imprimir y pegar en la obra</div>
+    <div class="campo-form"><label>Nombre de la obra</label><input type="text" id="no-nombre" placeholder="Reforma Calle Mayor 12"></div>
+    <div class="campo-form">
+      <label>Dirección</label>
+      <div style="display:flex;gap:8px;">
+        <input type="text" id="no-dir" placeholder="C/ Mayor 12, Madrid" style="flex:1;">
+        <button type="button" onclick="buscarCoordenadas()" style="padding:10px 14px;border:2px solid #e5e5e5;border-radius:10px;background:white;cursor:pointer;font-size:13px;white-space:nowrap;">🔍 Buscar</button>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="campo-form"><label>Latitud GPS</label><input type="text" id="no-lat" placeholder="42.5446…"></div>
+      <div class="campo-form"><label>Longitud GPS</label><input type="text" id="no-lng" placeholder="1.5153…"></div>
+    </div>
+    <button type="button" onclick="capturarUbicacionObra()" style="width:100%;padding:10px;border:2px dashed #e5e5e5;border-radius:10px;background:none;cursor:pointer;font-size:13px;color:#666;margin-bottom:4px;">📍 Capturar mi ubicación actual como GPS de la obra</button>
+    <div style="display:flex;gap:10px;margin-top:12px;">
+      <button class="btn btn-secundario" style="flex:1;" onclick="cerrarModal('modal-nueva-obra')">Cancelar</button>
+      <button class="btn btn-primario" style="flex:1;" onclick="crearObra()">Crear y generar QR</button>
+    </div>
+    <div class="error" id="error-nueva-obra"></div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR OBRA -->
+<div class="modal-bg" id="modal-editar-obra">
+  <div class="modal-card">
+    <h2>Editar obra</h2>
+    <div class="subtit" id="eo-subtit">—</div>
+    <div class="campo-form"><label>Nombre de la obra</label><input type="text" id="eo-nombre" placeholder="Reforma Calle Mayor 12"></div>
+    <div class="campo-form">
+      <label>Dirección</label>
+      <div style="display:flex;gap:8px;">
+        <input type="text" id="eo-dir" placeholder="C/ Mayor 12, Madrid" style="flex:1;">
+        <button type="button" onclick="buscarCoordenadasEditar()" style="padding:10px 14px;border:2px solid #e5e5e5;border-radius:10px;background:white;cursor:pointer;font-size:13px;white-space:nowrap;">🔍 Buscar</button>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="campo-form"><label>Latitud GPS</label><input type="text" id="eo-lat" placeholder="42.5446…"></div>
+      <div class="campo-form"><label>Longitud GPS</label><input type="text" id="eo-lng" placeholder="1.5153…"></div>
+    </div>
+    <button type="button" onclick="capturarUbicacionEditar()" style="width:100%;padding:10px;border:2px dashed #e5e5e5;border-radius:10px;background:none;cursor:pointer;font-size:13px;color:#666;margin-bottom:4px;">📍 Capturar mi ubicación actual como GPS de la obra</button>
+    <div class="campo-form"><label>Estado</label><select id="eo-activa"><option value="true">Activa</option><option value="false">Inactiva</option></select></div>
+    <div style="display:flex;gap:10px;margin-top:12px;">
+      <button class="btn btn-secundario" style="flex:1;" onclick="cerrarModal('modal-editar-obra')">Cancelar</button>
+      <button class="btn btn-primario" style="flex:1;" onclick="guardarObra()">Guardar cambios</button>
+    </div>
+    <div class="error" id="error-editar-obra"></div>
+  </div>
+</div>
+
+<!-- MODAL SUBIR NÓMINA (ADMIN) -->
+<div class="modal-bg" id="modal-subir-nomina">
+  <div class="modal-card">
+    <h2>Subir nómina</h2>
+    <div class="subtit">El empleado recibirá la nómina para firmarla desde su móvil</div>
+    <div class="campo-form"><label>Empleado</label><select id="sn-empleado"></select></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="campo-form">
+        <label>Mes</label>
+        <select id="sn-mes">
+          <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
+          <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
+          <option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
+          <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+        </select>
+      </div>
+      <div class="campo-form"><label>Año</label><input type="number" id="sn-anio" value="2026"></div>
+    </div>
+    <div class="campo-form">
+      <label>Archivo PDF</label>
+      <div class="drop-zone" id="drop-zone" onclick="document.getElementById('sn-archivo').click()">
+        <div class="dz-icono">📄</div>
+        <div class="dz-texto">Toca para seleccionar PDF</div>
+        <div class="dz-sub">Solo archivos PDF</div>
+        <div class="dz-nombre" id="dz-nombre" style="display:none;"></div>
+      </div>
+      <input type="file" id="sn-archivo" accept=".pdf" style="display:none;" onchange="archivoSeleccionado(this)">
+    </div>
+    <div style="display:flex;gap:10px;margin-top:12px;">
+      <button class="btn btn-secundario" style="flex:1;" onclick="cerrarModal('modal-subir-nomina')">Cancelar</button>
+      <button class="btn btn-primario" style="flex:1;" id="btn-subir-nomina" onclick="subirNomina()">Subir nómina</button>
+    </div>
+    <div class="error" id="error-subir-nomina"></div>
+  </div>
+</div>
+
+<!-- MODAL FIRMAR NÓMINA (EMPLEADO) -->
+<div class="modal-bg" id="modal-firmar-nomina">
+  <div class="modal-card" style="max-width:520px;">
+    <h2>Firmar nómina</h2>
+    <div style="background:#fffbeb;border-left:3px solid #FFD234;padding:12px;border-radius:8px;font-size:13px;margin-bottom:16px;">
+      👆 Primero <a id="firmar-ver-pdf" href="#" target="_blank" style="color:#2563eb;font-weight:700;">abre la nómina</a> para revisarla, luego firma aquí.
+    </div>
+    <div id="firma-guardada-section" style="display:none;">
+      <div class="firma-guardada-preview">
+        <img id="firma-guardada-img" src="" alt="Tu firma guardada">
+        <p>Tu firma guardada — toca "Confirmar" para usarla</p>
+      </div>
+      <button class="btn btn-secundario" style="width:100%;margin-bottom:12px;" onclick="usarFirmaCanvas()">Dibujar firma nueva</button>
+    </div>
+    <div id="firma-canvas-section">
+      <div class="firma-wrap">
+        <canvas id="canvas-firma" width="460" height="160"></canvas>
+        <div class="firma-label">Dibuja tu firma con el dedo o el ratón</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:12px;">
+      <button class="btn btn-secundario" id="btn-limpiar-firma" onclick="limpiarFirma()">Limpiar</button>
+      <button class="btn btn-secundario" style="flex:1;" onclick="cerrarModal('modal-firmar-nomina')">Cancelar</button>
+      <button class="btn btn-primario" style="flex:1;" id="btn-confirmar-firma" onclick="procesarFirma()">✅ Confirmar firma</button>
+    </div>
+    <div class="error" id="error-firmar"></div>
+  </div>
+</div>
+
+<!-- ESCÁNER QR -->
+<div class="modal" id="modal-escaner">
+  <div class="modal-header">
+    <span>Escanea el QR de la obra</span>
+    <button class="modal-cerrar" onclick="cerrarEscaner()">✕</button>
+  </div>
+  <video id="video" autoplay playsinline muted></video>
+  <div class="modal-info">Apunta al código QR pegado en la obra.<br>Necesitamos también tu ubicación GPS.</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div id="ios-banner">
+  <strong>Instala esta app en tu iPhone</strong>
+  <div class="ios-steps">Toca <b>Compartir</b> (el cuadrado con flecha) → <b>Añadir a pantalla de inicio</b></div>
+  <button onclick="document.getElementById('ios-banner').style.display='none'">Entendido</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbzmmpGQ8h14zBaNK_eXCkNVCCzQBTLQk_3l6M-mGCdjrk6qaCzVd2TnmBdZgiOk9kaW/exec';
+
+// ── IDIOMAS ────────────────────────────────────────────────
+const TRADUCCIONES = {
+  es: {
+    tagline: 'Gestión de fichajes, nóminas y equipo — todo en un solo lugar.',
+    loginSubtitulo: 'Introduce tus datos para entrar',
+    labelId: 'Nº de empleado', labelPin: 'PIN',
+    btnEntrar: 'Entrar', btnCargando: 'Entrando…',
+    errorCampos: 'Completa los dos campos',
+    errorConexion: 'Error de conexión. Inténtalo de nuevo.',
+    hola: 'Hola,', salir: 'Salir', cerrarSesion: 'Cerrar sesión',
+    trabajadasHoy: 'trabajadas hoy',
+    resumenMes: 'Resumen del mes', horasMes: 'horas este mes', horasOrdinarias: 'ordinarias', horasExtras: 'extras',
+    misNominas: 'Mis nóminas', cargando: 'Cargando…',
+    ficharEntrada: '📷 Fichar entrada', ficharSalida: '📷 Fichar salida',
+    dentroTurno: '🟢 Estás trabajando', fueraTurno: '⚪ Fuera de turno',
+    navDashboard: 'Dashboard', navTrabajadores: 'Trabajadores', navObras: 'Obras',
+    navFichajes: 'Fichajes', navHoras: 'Horas', navNominas: 'Nóminas',
+    nuevaTrabajador: '+ Nuevo trabajador', nuevaObra: '+ Nueva obra',
+    pendienteFirma: 'Pendiente de firma', firmadaEl: 'Firmada el',
+    verPdf: 'Ver PDF', firmar: 'Firmar',
+    confirmarFirma: '✅ Confirmar firma', limpiar: 'Limpiar', cancelar: 'Cancelar',
+    usarFirmaGuardada: 'Tu firma guardada — toca "Confirmar" para usarla',
+    dibujarNueva: 'Dibujar firma nueva',
+    borrar: 'Borrar', hora: 'Hora', empleado: 'Empleado', tipo: 'Tipo', obra: 'Obra',
+    sinFihajesHoy: 'Sin fichajes hoy', sinTrabajadores: 'Sin trabajadores', sinObras: 'Sin obras',
+    activo: 'Activo', inactivo: 'Inactivo', activa: 'Activa', inactiva: 'Inactiva',
+    trabajadorEliminado: 'Trabajador eliminado', obraEliminada: 'Obra eliminada',
+    confirmBorrarTrabajador: (n) => `¿Borrar a ${n}? Esta acción no se puede deshacer.`,
+    confirmBorrarObra: (n) => `¿Borrar la obra "${n}"? Esta acción no se puede deshacer.`,
+    trabajadorCreado: (id) => `Trabajador creado — ID: ${id}`,
+    sinNominas: 'Sin nóminas', sinNominasTodavia: 'No hay nóminas todavía',
+    firmada: 'Firmada', sinFichajes: 'Sin fichajes', sinGps: 'Sin GPS', gpsActivo: 'GPS ✓',
+  },
+  ca: {
+    tagline: 'Gestió de fitxades, nòmines i equip — tot en un sol lloc.',
+    loginSubtitulo: 'Introdueix les teves dades per entrar',
+    labelId: 'Nº de treballador', labelPin: 'PIN',
+    btnEntrar: 'Entrar', btnCargando: 'Entrant…',
+    errorCampos: 'Completa els dos camps',
+    errorConexion: 'Error de connexió. Torna-ho a intentar.',
+    hola: 'Hola,', salir: 'Sortir', cerrarSesion: 'Tancar sessió',
+    trabajadasHoy: 'treballades avui',
+    resumenMes: 'Resum del mes', horasMes: 'hores aquest mes', horasOrdinarias: 'ordinàries', horasExtras: 'extres',
+    misNominas: 'Les meves nòmines', cargando: 'Carregant…',
+    ficharEntrada: '📷 Fitxar entrada', ficharSalida: '📷 Fitxar sortida',
+    dentroTurno: '🟢 Estàs treballant', fueraTurno: '⚪ Fora de torn',
+    navDashboard: 'Dashboard', navTrabajadores: 'Treballadors', navObras: 'Obres',
+    navFichajes: 'Fitxades', navHoras: 'Hores', navNominas: 'Nòmines',
+    nuevaTrabajador: '+ Nou treballador', nuevaObra: '+ Nova obra',
+    pendienteFirma: 'Pendent de signatura', firmadaEl: 'Signada el',
+    verPdf: 'Veure PDF', firmar: 'Signar',
+    confirmarFirma: '✅ Confirmar signatura', limpiar: 'Netejar', cancelar: 'Cancel·lar',
+    usarFirmaGuardada: 'La teva signatura guardada — toca "Confirmar" per usar-la',
+    dibujarNueva: 'Dibuixar signatura nova',
+    borrar: 'Esborrar', hora: 'Hora', empleado: 'Treballador', tipo: 'Tipus', obra: 'Obra',
+    sinFihajesHoy: 'Sense fitxades avui', sinTrabajadores: 'Sense treballadors', sinObras: 'Sense obres',
+    activo: 'Actiu', inactivo: 'Inactiu', activa: 'Activa', inactiva: 'Inactiva',
+    trabajadorEliminado: 'Treballador eliminat', obraEliminada: 'Obra eliminada',
+    confirmBorrarTrabajador: (n) => `Esborrar a ${n}? Aquesta acció no es pot desfer.`,
+    confirmBorrarObra: (n) => `Esborrar l'obra "${n}"? Aquesta acció no es pot desfer.`,
+    trabajadorCreado: (id) => `Treballador creat — ID: ${id}`,
+    sinNominas: 'Sense nòmines', sinNominasTodavia: 'Encara no hi ha nòmines',
+    firmada: 'Signada', sinFichajes: 'Sense fitxades', sinGps: 'Sense GPS', gpsActivo: 'GPS ✓',
+  },
+  pt: {
+    tagline: 'Gestão de registos, folhas de pagamento e equipa — tudo num só lugar.',
+    loginSubtitulo: 'Introduza os seus dados para entrar',
+    labelId: 'Nº de funcionário', labelPin: 'PIN',
+    btnEntrar: 'Entrar', btnCargando: 'A entrar…',
+    errorCampos: 'Preencha os dois campos',
+    errorConexion: 'Erro de ligação. Tente novamente.',
+    hola: 'Olá,', salir: 'Sair', cerrarSesion: 'Fechar sessão',
+    trabajadasHoy: 'trabalhadas hoje',
+    resumenMes: 'Resumo do mês', horasMes: 'horas este mês', horasOrdinarias: 'ordinárias', horasExtras: 'extras',
+    misNominas: 'As minhas folhas', cargando: 'A carregar…',
+    ficharEntrada: '📷 Registar entrada', ficharSalida: '📷 Registar saída',
+    dentroTurno: '🟢 Está a trabalhar', fueraTurno: '⚪ Fora de turno',
+    navDashboard: 'Dashboard', navTrabajadores: 'Trabalhadores', navObras: 'Obras',
+    navFichajes: 'Registos', navHoras: 'Horas', navNominas: 'Folhas de pagamento',
+    nuevaTrabajador: '+ Novo trabalhador', nuevaObra: '+ Nova obra',
+    pendienteFirma: 'Pendente de assinatura', firmadaEl: 'Assinada em',
+    verPdf: 'Ver PDF', firmar: 'Assinar',
+    confirmarFirma: '✅ Confirmar assinatura', limpiar: 'Limpar', cancelar: 'Cancelar',
+    usarFirmaGuardada: 'A sua assinatura guardada — toque "Confirmar" para usar',
+    dibujarNueva: 'Desenhar nova assinatura',
+    borrar: 'Apagar', hora: 'Hora', empleado: 'Funcionário', tipo: 'Tipo', obra: 'Obra',
+    sinFihajesHoy: 'Sem registos hoje', sinTrabajadores: 'Sem trabalhadores', sinObras: 'Sem obras',
+    activo: 'Ativo', inactivo: 'Inativo', activa: 'Ativa', inactiva: 'Inativa',
+    trabajadorEliminado: 'Trabalhador eliminado', obraEliminada: 'Obra eliminada',
+    confirmBorrarTrabajador: (n) => `Apagar ${n}? Esta ação não pode ser desfeita.`,
+    confirmBorrarObra: (n) => `Apagar a obra "${n}"? Esta ação não pode ser desfeita.`,
+    trabajadorCreado: (id) => `Trabalhador criado — ID: ${id}`,
+    sinNominas: 'Sem folhas', sinNominasTodavia: 'Ainda não há folhas',
+    firmada: 'Assinada', sinFichajes: 'Sem registos', sinGps: 'Sem GPS', gpsActivo: 'GPS ✓',
+  }
+};
+
+let idiomaActual = localStorage.getItem('idioma') || 'es';
+
+function t(clave) { return TRADUCCIONES[idiomaActual][clave] || TRADUCCIONES.es[clave] || clave; }
+
+function cambiarIdioma(lang) {
+  idiomaActual = lang;
+  localStorage.setItem('idioma', lang);
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    b.classList.toggle('activo', b.getAttribute('onclick').includes(`'${lang}'`));
+  });
+  aplicarIdioma();
+}
+
+function aplicarIdioma() {
+  const T = TRADUCCIONES[idiomaActual];
+  // Login
+  const subtitulo = document.querySelector('.login-box .subtitulo');
+  if (subtitulo) subtitulo.textContent = T.loginSubtitulo;
+  const tagline = document.querySelector('.login-marca .tagline');
+  if (tagline) tagline.textContent = T.tagline;
+  const labelId = document.querySelector('.campo label');
+  if (labelId) labelId.textContent = T.labelId;
+  const btnLogin = document.getElementById('btn-login');
+  if (btnLogin && !btnLogin.disabled) btnLogin.textContent = T.btnEntrar;
+  // Empleado
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.dataset.i18n;
+    if (T[k]) el.textContent = T[k];
+  });
+  document.querySelector('.label-hoy').textContent = T.trabajadasHoy;
+  document.querySelector('.tarjeta-titulo').textContent = T.resumenMes;
+  const lblHorasMes = document.getElementById('lbl-horas-mes');
+  if (lblHorasMes) lblHorasMes.textContent = T.horasMes;
+  const lblOrdinarias = document.getElementById('lbl-ordinarias');
+  if (lblOrdinarias) lblOrdinarias.textContent = T.horasOrdinarias || 'ordinarias';
+  const lblExtras = document.getElementById('lbl-extras');
+  if (lblExtras) lblExtras.textContent = T.horasExtras || 'extras';
+  document.querySelectorAll('.tarjeta-titulo')[1] && (document.querySelectorAll('.tarjeta-titulo')[1].textContent = T.misNominas);
+  // Admin nav
+  const navItems = document.querySelectorAll('.nav-item span:not(.icono)');
+  const navKeys = ['navDashboard','navTrabajadores','navObras','navFichajes','navHoras','navNominas'];
+  navItems.forEach((el, i) => { if (navKeys[i]) el.textContent = T[navKeys[i]]; });
+  // Botones principales admin
+  const btnNuevoTrabajador = document.querySelector('[onclick*="modal-nuevo-trabajador"]');
+  if (btnNuevoTrabajador) btnNuevoTrabajador.textContent = T.nuevaTrabajador;
+  const btnNuevaObra = document.querySelector('[onclick*="modal-nueva-obra"]');
+  if (btnNuevaObra) btnNuevaObra.textContent = T.nuevaObra;
+}
+
+let estado = { token: null, rol: null, trabajador: null, videoStream: null, escaneando: false };
+let nominaParaFirmar = null;
+let nominaUrlPdf = null;
+let archivoNomina = null;
+let listaTrabajadores = [];
+let todosFichajes = [];
+let _realtimeInterval = null;
+
+// ── SESIÓN ─────────────────────────────────────────────────
+function guardarSesion(token, rol, trabajador, expira) {
+  localStorage.setItem('sesion', JSON.stringify({ token, rol, trabajador, expira }));
+}
+function cargarSesion() {
+  const raw = localStorage.getItem('sesion');
+  if (!raw) return null;
+  try {
+    const s = JSON.parse(raw);
+    if (new Date(s.expira) < new Date()) { localStorage.removeItem('sesion'); return null; }
+    return s;
+  } catch { return null; }
+}
+function cerrarSesion() {
+  detenerMonitorGPS();
+  localStorage.removeItem('sesion');
+  estado = { token: null, rol: null, trabajador: null, videoStream: null, escaneando: false };
+  mostrarPantalla('pantalla-login');
+  document.getElementById('input-id').value = '';
+  document.getElementById('input-pin').value = '';
+  const btn = document.getElementById('btn-login');
+  btn.disabled = false; btn.textContent = 'Entrar';
+}
+
+// ── API ────────────────────────────────────────────────────
+async function llamarAPI(accion, params = {}) {
+  const url = new URL(API_URL);
+  url.searchParams.set('action', accion);
+  Object.keys(params).forEach(k => url.searchParams.set(k, params[k]));
+  const res = await fetch(url);
+  return res.json();
+}
+async function llamarAPIPOST(accion, params = {}) {
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    body: JSON.stringify({ accion, ...params }),
+    redirect: 'follow'
+  });
+  return res.json();
+}
+
+// ── UI ─────────────────────────────────────────────────────
+function mostrarPantalla(id) {
+  document.querySelectorAll('.pantalla').forEach(p => p.classList.remove('activa'));
+  document.getElementById(id).classList.add('activa');
+}
+function toast(mensaje, tipo = '') {
+  const t = document.getElementById('toast');
+  t.textContent = mensaje;
+  t.className = 'toast visible ' + tipo;
+  setTimeout(() => t.classList.remove('visible'), 3500);
+}
+function formatearHorasMin(minutos) {
+  const h = Math.floor(minutos / 60);
+  const m = Math.round(minutos % 60);
+  return `${h}<small>h</small> ${m}<small>min</small>`;
+}
+
+// ── LOGIN ──────────────────────────────────────────────────
+document.getElementById('btn-login').addEventListener('click', async () => {
+  const id  = document.getElementById('input-id').value.trim();
+  const pin = document.getElementById('input-pin').value.trim();
+  const errorEl = document.getElementById('error-login');
+  const btn = document.getElementById('btn-login');
+  errorEl.textContent = '';
+  if (!id || !pin) { errorEl.textContent = 'Completa los dos campos'; return; }
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loader"></span>';
+  try {
+    const res = await llamarAPI('login', { id, pin });
+    if (!res.ok) { errorEl.textContent = res.error || 'Error desconocido'; btn.disabled = false; btn.textContent = 'Entrar'; return; }
+    const trabajador = { nombre: res.nombre, nombre_corto: res.nombre_corto, rol: res.rol, horas: res.horas };
+    estado.token = res.token; estado.rol = res.rol; estado.trabajador = trabajador;
+    const expira = new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString();
+    guardarSesion(res.token, res.rol, trabajador, expira);
+    entrarApp();
+  } catch {
+    errorEl.textContent = 'Error de conexión. Inténtalo de nuevo.';
+    btn.disabled = false; btn.textContent = 'Entrar';
+  }
+});
+document.getElementById('input-pin').addEventListener('keypress', e => {
+  if (e.key === 'Enter') document.getElementById('btn-login').click();
+});
+
+// ── ROUTING ────────────────────────────────────────────────
+function entrarApp() {
+  if (estado.rol === 'admin') {
+    document.getElementById('nombre-admin').textContent = estado.trabajador.nombre_corto || estado.trabajador.nombre;
+    document.getElementById('fecha-hoy').textContent = new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+    mostrarPantalla('pantalla-admin');
+    cargarDatosAdmin();
+  } else {
+    document.getElementById('nombre-empleado').textContent = estado.trabajador.nombre_corto || estado.trabajador.nombre;
+    mostrarPantalla('pantalla-empleado');
+    refrescarEmpleado();
+    clearInterval(_realtimeInterval);
+    _realtimeInterval = setInterval(refrescarEmpleado, 60000);
+  }
+}
+
+// ── INFORME DE HORAS ───────────────────────────────────────
+async function cargarInformeHoras() {
+  const semanaInput = document.getElementById('semana-input').value;
+  if (!semanaInput) { toast('Selecciona una semana', 'error'); return; }
+  const tbody = document.getElementById('tbody-horas');
+  tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;color:#999;padding:24px;">Cargando…</td></tr>';
+  try {
+    const res = await llamarAPI('admin_informe_horas', { token: estado.token, semana: semanaInput });
+    if (!res.ok) { toast(res.error || 'Error', 'error'); return; }
+    const empleados = res.empleados || [];
+    if (!empleados.length) {
+      tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;color:#999;padding:24px;">Sin fichajes esta semana</td></tr>';
+      return;
+    }
+    tbody.innerHTML = empleados.map(e => {
+      const trab = listaTrabajadores.find(t => t.nombre === e.nombre);
+      const empId = trab ? trab.id : '';
+      return `<tr style="cursor:pointer;" title="Ver fichajes de ${e.nombre}" onclick="verFichajesEmpleado('${empId}')">
+        <td><b>${e.nombre}</b> <span style="font-size:11px;color:#2563eb;">↗ ver fichajes</span></td>
+        ${e.dias.map(h => `<td>${h > 0 ? h.toFixed(1) + 'h' : '—'}</td>`).join('')}
+        <td><b>${e.total.toFixed(1)}h</b></td>
+        <td style="color:#16a34a;font-weight:700;">${e.ordinarias.toFixed(1)}h</td>
+        <td style="color:${e.extras > 0 ? '#dc2626' : '#aaa'};font-weight:${e.extras > 0 ? '700' : '400'};">${e.extras.toFixed(1)}h</td>
+      </tr>`;
+    }).join('');
+  } catch(err) { toast('Error de conexión', 'error'); }
+}
+
+// ── FICHAJES FILTRO ────────────────────────────────────────
+function filtrarFichajes() {
+  const empId = document.getElementById('filtro-empleado')?.value || '';
+  const mes   = document.getElementById('filtro-mes')?.value;
+  const anio  = parseInt(document.getElementById('filtro-anio')?.value) || 0;
+  const nombresMap = {};
+  listaTrabajadores.forEach(tr => { nombresMap[tr.id] = tr.nombre; });
+
+  let lista = todosFichajes.slice();
+  if (empId) lista = lista.filter(f => f.trabajador_id === empId);
+  if (mes !== '' && mes !== undefined && mes !== null) {
+    lista = lista.filter(f => { const d = new Date(f.timestamp); return d.getMonth() === parseInt(mes) && (!anio || d.getFullYear() === anio); });
+  } else if (anio) {
+    lista = lista.filter(f => new Date(f.timestamp).getFullYear() === anio);
+  }
+
+  // Agrupar por empleado + día y parear entrada/salida
+  const grupos = {};
+  lista.forEach(f => {
+    const ts = new Date(f.timestamp);
+    const key = f.trabajador_id + '_' + ts.toDateString();
+    if (!grupos[key]) grupos[key] = { tid: f.trabajador_id, fecha: ts, obra: f.obra_id, distancia: f.distancia, eventos: [] };
+    grupos[key].eventos.push({ tipo: f.tipo, ts, lat: f.lat, lng: f.lng });
+  });
+
+  const jornadas = [];
+  Object.values(grupos).forEach(g => {
+    g.eventos.sort((a,b) => a.ts - b.ts);
+    let entrada = null;
+    g.eventos.forEach(ev => {
+      if (ev.tipo === 'entrada') { entrada = ev; }
+      else if (ev.tipo === 'salida' && entrada) {
+        jornadas.push({ tid: g.tid, fecha: g.fecha, obra: g.obra, entrada, salida: ev, distancia: g.distancia });
+        entrada = null;
+      }
+    });
+    if (entrada) jornadas.push({ tid: g.tid, fecha: g.fecha, obra: g.obra, entrada, salida: null, distancia: g.distancia });
+  });
+  jornadas.sort((a,b) => b.fecha - a.fecha);
+
+  const fmt = ts => ts.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+  const dur = (e, s) => {
+    if (!s) {
+      if (e.ts.toDateString() !== new Date().toDateString())
+        return '<span style="color:#dc2626;font-size:12px;font-weight:600;">Sin salida</span>';
+      return '<span style="color:#f59e0b;font-size:12px;">En turno</span>';
+    }
+    const m = Math.round((s.ts - e.ts) / 60000);
+    return `${Math.floor(m/60)}h ${m%60}min`;
+  };
+  const normCoord = v => { const n = parseFloat(v); if (!n || isNaN(n)) return null; return Math.abs(n) > 900 ? n / 10000000 : n; };
+  const mapa = ev => {
+    const lat = normCoord(ev.lat), lng = normCoord(ev.lng);
+    return lat && lng
+      ? `<a href="https://maps.google.com/?q=${lat},${lng}" target="_blank" style="color:#2563eb;font-size:12px;">📍 Ver</a>`
+      : '—';
+  };
+
+  const distLabel = m => {
+    if (m === null || m === undefined || m === '') return '—';
+    const km = parseFloat(m);
+    if (isNaN(km)) return '—';
+    const txt = km >= 1000 ? (km/1000).toFixed(1) + ' km' : Math.round(km) + ' m';
+    return km > 500
+      ? `<span style="color:#dc2626;font-weight:700;">⚠️ ${txt}</span>`
+      : `<span style="color:#16a34a;">${txt}</span>`;
+  };
+  const tbody = document.getElementById('tabla-fichajes');
+  tbody.innerHTML = jornadas.length
+    ? jornadas.map(j => `<tr>
+        <td>${j.fecha.toLocaleDateString('es-ES')}</td>
+        <td><b>${nombresMap[j.tid] || j.tid}</b></td>
+        <td style="color:#16a34a;font-weight:600;">${fmt(j.entrada.ts)}</td>
+        <td style="color:#dc2626;font-weight:600;">${j.salida ? fmt(j.salida.ts) : '<span style="color:#f59e0b;">—</span>'}</td>
+        <td>${dur(j.entrada, j.salida)}</td>
+        <td>${j.obra || '—'}</td>
+        <td>${mapa(j.entrada)}</td>
+        <td>${j.salida ? mapa(j.salida) : '—'}</td>
+        <td>${distLabel(j.distancia)}</td>
+      </tr>`).join('')
+    : `<tr><td colspan="9" style="text-align:center;color:#999;padding:20px;">Sin fichajes</td></tr>`;
+}
+
+function verFichajesEmpleado(empId) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('activo'));
+  document.querySelectorAll('.admin-pagina').forEach(p => p.classList.remove('activa'));
+  document.querySelector('.nav-item[data-pag="fichajes"]').classList.add('activo');
+  document.getElementById('pag-fichajes').classList.add('activa');
+  const sel = document.getElementById('filtro-empleado');
+  if (sel) sel.value = empId;
+  document.getElementById('filtro-mes').value = '';
+  filtrarFichajes();
+  window.scrollTo(0, 0);
+}
+
+// ── NAVEGACIÓN ADMIN ───────────────────────────────────────
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('activo'));
+    document.querySelectorAll('.admin-pagina').forEach(p => p.classList.remove('activa'));
+    item.classList.add('activo');
+    document.getElementById('pag-' + item.dataset.pag).classList.add('activa');
+    window.scrollTo(0, 0);
+  });
+});
+
+// ── DATOS ADMIN ────────────────────────────────────────────
+async function cargarDatosAdmin() {
+  try {
+    const res = await llamarAPI('admin_datos', { token: estado.token });
+    if (!res.ok) return;
+
+    const _ahora = new Date();
+    const _ini = new Date(_ahora.getFullYear(), _ahora.getMonth(), _ahora.getDate());
+    const _fin = new Date(_ini.getTime() + 864e5);
+    const _fhoy = (res.fichajes || []).filter(f => { const ts = new Date(f.timestamp); return ts >= _ini && ts < _fin; });
+    const _ult = {}; _fhoy.forEach(f => { _ult[f.trabajador_id] = f.tipo; });
+    document.getElementById('kpi-activos').textContent      = Object.values(_ult).filter(tp => tp === 'entrada').length;
+    document.getElementById('kpi-fichajes-hoy').textContent = _fhoy.length;
+    document.getElementById('kpi-nominas').textContent      = (res.nominas || []).filter(n => n.estado === 'pendiente').length;
+    document.getElementById('kpi-obras').textContent        = (res.obras || []).filter(o => String(o.activa).toUpperCase() === 'TRUE' || o.activa === true).length;
+
+    listaTrabajadores = res.trabajadores || [];
+    document.getElementById('subt-trabajadores').textContent = listaTrabajadores.length + ' registrados';
+    document.getElementById('tabla-trabajadores').innerHTML = listaTrabajadores.length
+      ? listaTrabajadores.map(tr => `<tr>
+          <td><code style="background:#f0f0f0;padding:2px 6px;border-radius:4px;font-size:12px;">${tr.id}</code></td>
+          <td><b>${tr.nombre}</b></td><td><code>${tr.pin}</code></td>
+          <td><span class="badge ${tr.rol === 'admin' ? 'badge-amarillo' : 'badge-gris'}">${tr.rol}</span></td>
+          <td>${tr.horas_pactadas}h</td>
+          <td><span class="badge ${tr.activo ? 'badge-verde' : 'badge-rojo'}">${tr.activo ? t('activo') : t('inactivo')}</span></td>
+          <td><span class="accion-link" onclick="abrirEditarTrabajador('${tr.id}','${(tr.nombre||'').replace(/'/g,"&#39;")}','${(tr.nombre_corto||'').replace(/'/g,"&#39;")}','${tr.pin}','${tr.horas_pactadas}','${tr.activo}')">Editar</span> · <button class="btn-eliminar" onclick="eliminarTrabajador('${tr.id}','${tr.nombre}')">${t('borrar')}</button></td>
+        </tr>`).join('')
+      : `<tr><td colspan="7" style="text-align:center;color:#999;padding:20px;">${t('sinTrabajadores')}</td></tr>`;
+
+    const obras = res.obras || [];
+    document.getElementById('subt-obras').textContent = obras.length + ' registradas';
+    document.getElementById('tabla-obras').innerHTML = obras.length
+      ? obras.map(o => `<tr>
+          <td><code style="background:#f0f0f0;padding:2px 6px;border-radius:4px;font-size:12px;">${o.id}</code></td>
+          <td><b>${o.nombre}</b></td><td>${o.direccion || '—'}</td>
+          <td><span class="badge ${o.activa ? 'badge-verde' : 'badge-gris'}">${o.activa ? t('activa') : t('inactiva')}</span></td>
+          <td>${o.lat && o.lng ? '<span class="badge badge-verde">✓ GPS</span>' : '<span class="badge badge-rojo">Sin GPS</span>'}</td>
+          <td><span class="accion-link" onclick="verQR('${o.qr_token}','${o.nombre}')">Ver QR</span> · <span class="accion-link" onclick="abrirEditarObra('${o.id}','${(o.nombre||'').replace(/'/g,"&#39;")}','${o.lat||''}','${o.lng||''}','${(o.direccion||'').replace(/'/g,"&#39;")}','${o.activa}')">Editar</span> · <span class="accion-link rojo" onclick="eliminarObra('${o.id}','${o.nombre}')">${t('borrar')}</span></td>
+        </tr>`).join('')
+      : `<tr><td colspan="6" style="text-align:center;color:#999;padding:20px;">${t('sinObras')}</td></tr>`;
+
+    todosFichajes = res.fichajes || [];
+    // Poblar selector de empleados en filtro
+    const selEmp = document.getElementById('filtro-empleado');
+    selEmp.innerHTML = '<option value="">Todos los empleados</option>' +
+      listaTrabajadores.map(tr => `<option value="${tr.id}">${tr.nombre} (${tr.id})</option>`).join('');
+    filtrarFichajes();
+
+    {
+      const nb = {}; listaTrabajadores.forEach(tr => { nb[tr.id] = tr.nombre_corto || tr.nombre.split(' ')[0]; });
+      const grp = {};
+      todosFichajes.forEach(f => {
+        const ts = new Date(f.timestamp);
+        const k = f.trabajador_id + '_' + ts.toDateString();
+        if (!grp[k]) grp[k] = { tid: f.trabajador_id, fecha: ts, obra: f.obra_id, evs: [] };
+        grp[k].evs.push({ tipo: f.tipo, ts });
+      });
+      const jds = [];
+      Object.values(grp).forEach(g => {
+        g.evs.sort((a,b) => a.ts - b.ts);
+        let ent = null;
+        g.evs.forEach(ev => {
+          if (ev.tipo === 'entrada') { ent = ev; }
+          else if (ev.tipo === 'salida' && ent) { jds.push({ tid: g.tid, fecha: g.fecha, obra: g.obra, ent, sal: ev }); ent = null; }
+        });
+        if (ent) jds.push({ tid: g.tid, fecha: g.fecha, obra: g.obra, ent, sal: null });
+      });
+      jds.sort((a,b) => b.fecha - a.fecha);
+      const fmt = ts => ts.toLocaleTimeString('es-ES', { hour:'2-digit', minute:'2-digit' });
+      const dur = (e,s) => {
+        if (!s) return '<span style="color:#f59e0b;font-size:11px;">En turno</span>';
+        const m = Math.round((s.ts - e.ts)/60000);
+        return `${Math.floor(m/60)}h ${m%60}min`;
+      };
+      document.getElementById('tabla-dashboard-fichajes').innerHTML = jds.length
+        ? jds.slice(0,6).map(j => `<tr>
+            <td style="color:#666;font-size:12px;">${j.fecha.toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit'})}</td>
+            <td><b>${nb[j.tid] || j.tid}</b></td>
+            <td style="color:#16a34a;font-weight:600;">${fmt(j.ent.ts)}</td>
+            <td style="color:#dc2626;font-weight:600;">${j.sal ? fmt(j.sal.ts) : '<span style="color:#f59e0b;">—</span>'}</td>
+            <td>${dur(j.ent, j.sal)}</td>
+            <td>${j.obra || '—'}</td>
+          </tr>`).join('')
+        : `<tr><td colspan="6" style="text-align:center;color:#999;padding:20px;">${t('sinFihajesHoy')}</td></tr>`;
+    }
+
+    const nominas = res.nominas || [];
+    const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    document.getElementById('tabla-nominas').innerHTML = nominas.length
+      ? nominas.map(n => `<tr>
+          <td><code style="background:#f0f0f0;padding:2px 6px;border-radius:4px;font-size:12px;">${n.id}</code></td>
+          <td>${n.trabajador_id}</td>
+          <td>${meses[(n.mes||1)-1]}</td><td>${n.anio}</td>
+          <td><span class="badge ${n.estado === 'firmada' ? 'badge-verde' : 'badge-amarillo'}">${n.estado}</span></td>
+          <td>
+            ${n.url_pdf ? `<a href="${n.url_pdf}" target="_blank" class="accion-link">Ver PDF</a>` : '—'}
+            ${n.estado === 'firmada' ? ` · <a href="${n.url_pdf}" download class="accion-link" style="color:#16a34a;">⬇ Descargar firmada</a>` : ''}
+          </td>
+        </tr>`).join('')
+      : `<tr><td colspan="6" style="text-align:center;color:#999;padding:20px;">${t('sinNominas')}</td></tr>`;
+
+    cargarAlertasGPS();
+  } catch(e) { console.error(e); }
+}
+
+function verQR(token, nombre) {
+  window.open(`https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(token)}`, '_blank');
+}
+
+// ── MODALES ────────────────────────────────────────────────
+function abrirModal(id) { document.getElementById(id).classList.add('activa'); }
+function cerrarModal(id) { document.getElementById(id).classList.remove('activa'); }
+document.querySelectorAll('.modal-bg').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('activa'); });
+});
+
+async function crearTrabajador() {
+  const nombre = document.getElementById('nw-nombre').value.trim();
+  const corto  = document.getElementById('nw-corto').value.trim();
+  const pin    = document.getElementById('nw-pin').value.trim();
+  const horas  = document.getElementById('nw-horas').value.trim();
+  const rol    = document.getElementById('nw-rol').value;
+  const err    = document.getElementById('error-nuevo-trabajador');
+  const btn    = document.querySelector('#modal-nuevo-trabajador .btn-primario');
+  err.textContent = '';
+  if (!nombre || !pin) { err.textContent = 'Nombre y PIN son obligatorios'; return; }
+  btn.disabled = true; btn.textContent = 'Creando…';
+  try {
+    const res = await llamarAPI('admin_crear_trabajador', { token: estado.token, nombre, nombre_corto: corto || nombre.split(' ')[0], pin, rol, horas_pactadas: horas });
+    if (res.ok) { cerrarModal('modal-nuevo-trabajador'); toast('Trabajador creado — ID: ' + res.id, 'exito'); cargarDatosAdmin(); }
+    else err.textContent = res.error || 'Error al crear';
+  } catch { err.textContent = 'Error de conexión'; }
+  finally { btn.disabled = false; btn.textContent = 'Crear'; }
+}
+
+async function buscarCoordenadas() {
+  const dir = document.getElementById('no-dir').value.trim();
+  if (!dir) { toast('Escribe una dirección primero', 'error'); return; }
+  toast('Buscando coordenadas…');
+  try {
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(dir)}&format=json&limit=1`);
+    const data = await res.json();
+    if (data.length) {
+      document.getElementById('no-lat').value = parseFloat(data[0].lat).toFixed(7);
+      document.getElementById('no-lng').value = parseFloat(data[0].lon).toFixed(7);
+      toast('Coordenadas encontradas ✅', 'exito');
+    } else {
+      toast('Dirección no encontrada. Prueba con más detalle.', 'error');
+    }
+  } catch { toast('Error al buscar coordenadas', 'error'); }
+}
+
+function capturarUbicacionObra() {
+  if (!navigator.geolocation) { toast('GPS no disponible', 'error'); return; }
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      document.getElementById('no-lat').value = pos.coords.latitude.toFixed(7);
+      document.getElementById('no-lng').value = pos.coords.longitude.toFixed(7);
+      toast('Ubicación capturada', 'exito');
+    },
+    () => toast('No se pudo obtener la ubicación', 'error'),
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+}
+
+async function crearObra() {
+  const nombre = document.getElementById('no-nombre').value.trim();
+  const dir    = document.getElementById('no-dir').value.trim();
+  const lat    = document.getElementById('no-lat').value.trim();
+  const lng    = document.getElementById('no-lng').value.trim();
+  const err    = document.getElementById('error-nueva-obra');
+  err.textContent = '';
+  if (!nombre) { err.textContent = 'El nombre es obligatorio'; return; }
+  try {
+    const res = await llamarAPI('admin_crear_obra', { token: estado.token, nombre, direccion: dir, lat, lng });
+    if (res.ok) { cerrarModal('modal-nueva-obra'); toast('Obra creada — ID: ' + res.id, 'exito'); cargarDatosAdmin(); }
+    else err.textContent = res.error || 'Error al crear';
+  } catch { err.textContent = 'Error de conexión'; }
+}
+
+// ── EDITAR TRABAJADOR ──────────────────────────────────────
+let _editarTrabajadorId = null;
+
+function abrirEditarTrabajador(id, nombre, corto, pin, horas, activo) {
+  _editarTrabajadorId = id;
+  document.getElementById('et-subtit').textContent = `ID: ${id}`;
+  document.getElementById('et-nombre').value = nombre || '';
+  document.getElementById('et-corto').value = corto || '';
+  document.getElementById('et-pin').value = pin || '';
+  document.getElementById('et-horas').value = horas || 40;
+  document.getElementById('et-activo').value = (String(activo) === 'true' || activo === true) ? 'true' : 'false';
+  document.getElementById('error-editar-trabajador').textContent = '';
+  abrirModal('modal-editar-trabajador');
+}
+
+async function guardarTrabajador() {
+  const nombre = document.getElementById('et-nombre').value.trim();
+  const corto  = document.getElementById('et-corto').value.trim();
+  const pin    = document.getElementById('et-pin').value.trim();
+  const horas  = document.getElementById('et-horas').value.trim();
+  const activo = document.getElementById('et-activo').value;
+  const err    = document.getElementById('error-editar-trabajador');
+  err.textContent = '';
+  if (!nombre || !pin) { err.textContent = 'Nombre y PIN son obligatorios'; return; }
+  try {
+    const res = await llamarAPI('admin_editar_trabajador', { token: estado.token, id: _editarTrabajadorId, nombre, nombre_corto: corto || nombre.split(' ')[0], pin, horas_pactadas: horas, activo });
+    if (res.ok) { cerrarModal('modal-editar-trabajador'); toast('Trabajador actualizado ✅', 'exito'); cargarDatosAdmin(); }
+    else err.textContent = res.error || 'Error al guardar';
+  } catch { err.textContent = 'Error de conexión'; }
+}
+
+// ── EDITAR OBRA ────────────────────────────────────────────
+let _editarObraId = null;
+
+function abrirEditarObra(id, nombre, lat, lng, dir, activa) {
+  _editarObraId = id;
+  document.getElementById('eo-subtit').textContent = `ID: ${id}`;
+  document.getElementById('eo-nombre').value = nombre || '';
+  document.getElementById('eo-dir').value = dir || '';
+  document.getElementById('eo-lat').value = lat || '';
+  document.getElementById('eo-lng').value = lng || '';
+  document.getElementById('eo-activa').value = (String(activa) === 'true' || activa === true) ? 'true' : 'false';
+  document.getElementById('error-editar-obra').textContent = '';
+  abrirModal('modal-editar-obra');
+}
+
+async function buscarCoordenadasEditar() {
+  const dir = document.getElementById('eo-dir').value.trim();
+  if (!dir) { toast('Escribe una dirección primero', 'error'); return; }
+  toast('Buscando coordenadas…');
+  try {
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(dir)}&format=json&limit=1`);
+    const data = await res.json();
+    if (data.length) {
+      document.getElementById('eo-lat').value = parseFloat(data[0].lat).toFixed(7);
+      document.getElementById('eo-lng').value = parseFloat(data[0].lon).toFixed(7);
+      toast('Coordenadas encontradas ✅', 'exito');
+    } else {
+      toast('Dirección no encontrada. Prueba con más detalle.', 'error');
+    }
+  } catch { toast('Error al buscar coordenadas', 'error'); }
+}
+
+function capturarUbicacionEditar() {
+  if (!navigator.geolocation) { toast('GPS no disponible', 'error'); return; }
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      document.getElementById('eo-lat').value = pos.coords.latitude.toFixed(7);
+      document.getElementById('eo-lng').value = pos.coords.longitude.toFixed(7);
+      toast('Ubicación capturada', 'exito');
+    },
+    () => toast('No se pudo obtener la ubicación', 'error'),
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+}
+
+async function guardarObra() {
+  const nombre = document.getElementById('eo-nombre').value.trim();
+  const lat    = document.getElementById('eo-lat').value.trim();
+  const lng    = document.getElementById('eo-lng').value.trim();
+  const dir    = document.getElementById('eo-dir').value.trim();
+  const activa = document.getElementById('eo-activa').value;
+  const err    = document.getElementById('error-editar-obra');
+  err.textContent = '';
+  if (!nombre) { err.textContent = 'El nombre es obligatorio'; return; }
+  try {
+    const res = await llamarAPI('admin_editar_obra', { token: estado.token, id: _editarObraId, nombre, direccion: dir, lat, lng, activa });
+    if (res.ok) { cerrarModal('modal-editar-obra'); toast('Obra actualizada ✅', 'exito'); cargarDatosAdmin(); }
+    else err.textContent = res.error || 'Error al guardar';
+  } catch { err.textContent = 'Error de conexión'; }
+}
+
+// ── SUBIR NÓMINA (ADMIN) ───────────────────────────────────
+function abrirModalSubirNomina() {
+  const sel = document.getElementById('sn-empleado');
+  sel.innerHTML = listaTrabajadores.filter(t => t.rol !== 'admin').map(t =>
+    `<option value="${t.id}">${t.nombre} (${t.id})</option>`).join('');
+  document.getElementById('sn-anio').value = new Date().getFullYear();
+  document.getElementById('sn-mes').value = new Date().getMonth() + 1;
+  document.getElementById('dz-nombre').style.display = 'none';
+  document.getElementById('error-subir-nomina').textContent = '';
+  archivoNomina = null;
+  abrirModal('modal-subir-nomina');
+}
+
+function archivoSeleccionado(input) {
+  const file = input.files[0];
+  if (!file) return;
+  archivoNomina = file;
+  const dzNombre = document.getElementById('dz-nombre');
+  dzNombre.textContent = '✓ ' + file.name;
+  dzNombre.style.display = 'block';
+  document.getElementById('drop-zone').classList.add('activa');
+}
+
+async function subirNomina() {
+  const err = document.getElementById('error-subir-nomina');
+  err.textContent = '';
+  const trabajadorId = document.getElementById('sn-empleado').value;
+  const mes  = document.getElementById('sn-mes').value;
+  const anio = document.getElementById('sn-anio').value;
+  if (!archivoNomina) { err.textContent = 'Selecciona un archivo PDF'; return; }
+
+  const btn = document.getElementById('btn-subir-nomina');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loader"></span> Subiendo…';
+
+  try {
+    const base64 = await leerArchivoBase64(archivoNomina);
+    const res = await llamarAPIPOST('admin_subir_nomina', {
+      token: estado.token, trabajador_id: trabajadorId,
+      mes, anio, pdf_base64: base64, nombre_archivo: archivoNomina.name
+    });
+    if (res.ok) {
+      cerrarModal('modal-subir-nomina');
+      toast('Nómina subida correctamente', 'exito');
+      cargarDatosAdmin();
+    } else {
+      err.textContent = res.error || 'Error al subir';
+    }
+  } catch(e) {
+    err.textContent = 'Error de conexión';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Subir nómina';
+  }
+}
+
+function leerArchivoBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// ── FIRMA EMPLEADO ─────────────────────────────────────────
+let firmaGuardadaDataUrl = null;
+
+async function verPdfEmpleado(nominaId) {
+  toast(t('cargando'));
+  try {
+    const res = await llamarAPIPOST('empleado_get_pdf', { token: estado.token, nomina_id: nominaId });
+    if (!res.ok) { toast(res.error || 'Error al obtener PDF', 'error'); return; }
+    const bytes = Uint8Array.from(atob(res.pdf_base64), c => c.charCodeAt(0));
+    const blob = new Blob([bytes], { type: 'application/pdf' });
+    window.open(URL.createObjectURL(blob), '_blank');
+  } catch { toast('Error al obtener PDF', 'error'); }
+}
+
+function abrirFirma(nominaId) {
+  nominaParaFirmar = nominaId;
+  const linkPdf = document.getElementById('firmar-ver-pdf');
+  linkPdf.href = '#';
+  linkPdf.onclick = (e) => { e.preventDefault(); verPdfEmpleado(nominaId); };
+  document.getElementById('error-firmar').textContent = '';
+
+  const clave = 'firma_' + (estado.trabajador?.id || 'emp');
+  const firmaSaved = localStorage.getItem(clave);
+
+  if (firmaSaved) {
+    firmaGuardadaDataUrl = firmaSaved;
+    document.getElementById('firma-guardada-img').src = firmaSaved;
+    document.getElementById('firma-guardada-section').style.display = 'block';
+    document.getElementById('firma-canvas-section').style.display = 'none';
+    document.getElementById('btn-limpiar-firma').style.display = 'none';
+  } else {
+    firmaGuardadaDataUrl = null;
+    usarFirmaCanvas();
+  }
+
+  abrirModal('modal-firmar-nomina');
+  if (!firmaSaved) inicializarCanvas();
+}
+
+function usarFirmaCanvas() {
+  firmaGuardadaDataUrl = null;
+  document.getElementById('firma-guardada-section').style.display = 'none';
+  document.getElementById('firma-canvas-section').style.display = 'block';
+  document.getElementById('btn-limpiar-firma').style.display = '';
+  inicializarCanvas();
+}
+
+let firmaCtx = null;
+let dibujando = false;
+
+function inicializarCanvas() {
+  const canvas = document.getElementById('canvas-firma');
+  firmaCtx = canvas.getContext('2d');
+  firmaCtx.clearRect(0, 0, canvas.width, canvas.height);
+  firmaCtx.strokeStyle = '#0A0A0A';
+  firmaCtx.lineWidth = 2.5;
+  firmaCtx.lineCap = 'round';
+  firmaCtx.lineJoin = 'round';
+
+  const getPos = (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const src  = e.touches ? e.touches[0] : e;
+    return { x: (src.clientX - rect.left) * (canvas.width / rect.width), y: (src.clientY - rect.top) * (canvas.height / rect.height) };
+  };
+
+  canvas.onmousedown = canvas.ontouchstart = (e) => {
+    e.preventDefault(); dibujando = true;
+    const p = getPos(e);
+    firmaCtx.beginPath(); firmaCtx.moveTo(p.x, p.y);
+  };
+  canvas.onmousemove = canvas.ontouchmove = (e) => {
+    e.preventDefault();
+    if (!dibujando) return;
+    const p = getPos(e);
+    firmaCtx.lineTo(p.x, p.y); firmaCtx.stroke();
+  };
+  canvas.onmouseup = canvas.ontouchend = () => { dibujando = false; };
+  canvas.onmouseleave = () => { dibujando = false; };
+}
+
+function limpiarFirma() {
+  const canvas = document.getElementById('canvas-firma');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+async function procesarFirma() {
+  const canvas = document.getElementById('canvas-firma');
+  const err = document.getElementById('error-firmar');
+  err.textContent = '';
+
+  let sigDataUrl = firmaGuardadaDataUrl;
+
+  if (!sigDataUrl) {
+    const pixeles = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data;
+    const hayFirma = Array.from(pixeles).some((v, i) => i % 4 === 3 && v > 0);
+    if (!hayFirma) { err.textContent = 'Dibuja tu firma antes de confirmar'; return; }
+    sigDataUrl = canvas.toDataURL('image/png');
+  }
+
+  const btn = document.getElementById('btn-confirmar-firma');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loader"></span> Procesando…';
+  toast('Obteniendo nómina…');
+
+  try {
+    const pdfRes = await llamarAPIPOST('empleado_get_pdf', { token: estado.token, nomina_id: nominaParaFirmar });
+    if (!pdfRes.ok) { err.textContent = pdfRes.error || 'Error al obtener el PDF'; return; }
+
+    toast('Añadiendo firma al PDF…');
+    const pdfBytes = Uint8Array.from(atob(pdfRes.pdf_base64), c => c.charCodeAt(0));
+    const pdfDoc   = await PDFLib.PDFDocument.load(pdfBytes);
+    const sigBytes = Uint8Array.from(atob(sigDataUrl.split(',')[1]), c => c.charCodeAt(0));
+    const sigImg   = await pdfDoc.embedPng(sigBytes);
+
+    const ultima = pdfDoc.getPages()[pdfDoc.getPageCount() - 1];
+    const { width } = ultima.getSize();
+    ultima.drawImage(sigImg, { x: width - 180, y: 30, width: 150, height: 55 });
+
+    const pdfFirmadoBytes = await pdfDoc.save();
+    let binary = '';
+    for (let i = 0; i < pdfFirmadoBytes.length; i++) binary += String.fromCharCode(pdfFirmadoBytes[i]);
+    const pdfFirmadoB64 = btoa(binary);
+
+    toast('Guardando nómina firmada…');
+    const res = await llamarAPIPOST('empleado_firmar_nomina', {
+      token: estado.token, nomina_id: nominaParaFirmar, pdf_firmado_base64: pdfFirmadoB64
+    });
+
+    if (res.ok) {
+      const clave = 'firma_' + (estado.trabajador?.id || 'emp');
+      localStorage.setItem(clave, sigDataUrl);
+      cerrarModal('modal-firmar-nomina');
+      toast('¡Nómina firmada correctamente!', 'exito');
+      refrescarEmpleado();
+    } else {
+      err.textContent = res.error || 'Error al guardar';
+    }
+  } catch(e) {
+    err.textContent = 'Error: ' + e.message;
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '✅ Confirmar firma';
+  }
+}
+
+// ── GPS MONITOR (EMPLEADO → ADMIN) ────────────────────────
+let _obraGPS = null;
+let _gpsMonitorInterval = null;
+
+function calcDistanciaJS(lat1, lng1, lat2, lng2) {
+  const R = 6371000, toR = x => x * Math.PI / 180;
+  const dLat = toR(lat2 - lat1), dLng = toR(lng2 - lng1);
+  const a = Math.sin(dLat/2)**2 + Math.cos(toR(lat1)) * Math.cos(toR(lat2)) * Math.sin(dLng/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function iniciarMonitorGPS(obraLat, obraLng) {
+  detenerMonitorGPS();
+  if (!obraLat || !obraLng) return;
+  _obraGPS = { lat: parseFloat(obraLat), lng: parseFloat(obraLng) };
+  _gpsMonitorInterval = setInterval(verificarPosicionGPS, 60000);
+}
+
+function detenerMonitorGPS() {
+  if (_gpsMonitorInterval) { clearInterval(_gpsMonitorInterval); _gpsMonitorInterval = null; }
+  _obraGPS = null;
+}
+
+function verificarPosicionGPS() {
+  if (!_obraGPS || !navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(pos => {
+    const dist = calcDistanciaJS(pos.coords.latitude, pos.coords.longitude, _obraGPS.lat, _obraGPS.lng);
+    llamarAPI('registrar_posicion_gps', { token: estado.token, lat: pos.coords.latitude, lng: pos.coords.longitude, distancia: Math.round(dist) });
+  }, null, { enableHighAccuracy: false, timeout: 10000, maximumAge: 30000 });
+}
+
+// ── VISTA EMPLEADO ─────────────────────────────────────────
+async function refrescarEmpleado() {
+  try {
+    const hoy = await llamarAPI('estado_hoy', { token: estado.token });
+    if (hoy.ok) {
+      document.getElementById('horas-hoy').innerHTML = formatearHorasMin(hoy.minutos_hoy);
+      const btn = document.getElementById('btn-fichar');
+      const estadoEl = document.getElementById('estado-actual');
+      const est = hoy.estado || (hoy.dentro ? 'entrada' : 'libre');
+      if (est === 'entrada') {
+        estadoEl.textContent = '🟢 Estás trabajando';
+        btn.className = 'btn-fichar btn-pausa';
+        btn.innerHTML = '🍽 Pausa para comer';
+        if (hoy.obra_lat && hoy.obra_lng) iniciarMonitorGPS(hoy.obra_lat, hoy.obra_lng);
+      } else if (est === 'pausa_comida') {
+        estadoEl.textContent = '🍽 En pausa de comida';
+        btn.className = 'btn-fichar btn-vuelta';
+        btn.innerHTML = '↩ Volver de comida';
+        detenerMonitorGPS();
+      } else if (est === 'vuelta_comida') {
+        estadoEl.textContent = '🟢 Estás trabajando';
+        btn.className = 'btn-fichar btn-salida';
+        btn.innerHTML = t('ficharSalida');
+        if (hoy.obra_lat && hoy.obra_lng) iniciarMonitorGPS(hoy.obra_lat, hoy.obra_lng);
+      } else {
+        estadoEl.textContent = t('fueraTurno');
+        btn.className = 'btn-fichar btn-entrada';
+        btn.innerHTML = t('ficharEntrada');
+        detenerMonitorGPS();
+      }
+    } else if (hoy.error && hoy.error.includes('Sesión')) { cerrarSesion(); return; }
+  } catch {}
+
+  try {
+    const mes = await llamarAPI('resumen_mensual', { token: estado.token });
+    if (mes.ok) {
+      document.getElementById('stat-mes-horas').textContent = mes.horas_totales + 'h';
+      const extras = mes.horas_extras || 0;
+      const ordinarias = Math.max(0, Math.round((mes.horas_totales - extras) * 10) / 10);
+      document.getElementById('stat-mes-ordinarias').textContent = ordinarias + 'h';
+      document.getElementById('stat-mes-extras').textContent = extras + 'h';
+    }
+  } catch {}
+
+  try {
+    const nom = await llamarAPI('mis_nominas', { token: estado.token });
+    const cont = document.getElementById('lista-nominas');
+    if (nom.ok && nom.nominas.length) {
+      const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+      cont.innerHTML = nom.nominas.map(n => `
+        <div class="nomina-item">
+          <div class="nomina-info">
+            <div class="mes">${meses[n.mes-1]} ${n.anio}</div>
+            <div class="estado">${n.estado === 'firmada'
+              ? t('firmadaEl') + ' ' + new Date(n.fecha_firma).toLocaleDateString('es-ES')
+              : t('pendienteFirma')}</div>
+          </div>
+          <div class="nomina-acciones">
+            ${n.estado === 'firmada'
+              ? `<span class="badge-firmada">${t('firmada')}</span>`
+              : `<button class="btn-ver-pdf" onclick="verPdfEmpleado('${n.id}')">${t('verPdf')}</button>
+                 <button class="btn-firmar" onclick="abrirFirma('${n.id}')">${t('firmar')}</button>`
+            }
+          </div>
+        </div>`).join('');
+    } else {
+      cont.innerHTML = `<div style="color:#999;font-size:13px;text-align:center;padding:12px 0;">${t('sinNominasTodavia')}</div>`;
+    }
+  } catch {}
+}
+
+// ── ESCÁNER QR ─────────────────────────────────────────────
+async function abrirEscaner() {
+  if (!navigator.geolocation) { toast('Tu navegador no soporta GPS', 'error'); return; }
+  document.getElementById('modal-escaner').classList.add('activa');
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+    estado.videoStream = stream;
+    document.getElementById('video').srcObject = stream;
+    estado.escaneando = true;
+    requestAnimationFrame(escanearFrame);
+  } catch {
+    toast('No se pudo acceder a la cámara', 'error');
+    cerrarEscaner();
+  }
+}
+function cerrarEscaner() {
+  estado.escaneando = false;
+  if (estado.videoStream) { estado.videoStream.getTracks().forEach(t => t.stop()); estado.videoStream = null; }
+  document.getElementById('modal-escaner').classList.remove('activa');
+}
+function escanearFrame() {
+  if (!estado.escaneando) return;
+  const video = document.getElementById('video');
+  if (video.readyState === video.HAVE_ENOUGH_DATA) {
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const code = jsQR(ctx.getImageData(0, 0, canvas.width, canvas.height).data, canvas.width, canvas.height);
+    if (code && code.data) { estado.escaneando = false; procesarQR(code.data); return; }
+  }
+  requestAnimationFrame(escanearFrame);
+}
+async function procesarQR(qrToken) {
+  cerrarEscaner();
+  toast('QR detectado, fichando…');
+
+  const ficharConCoords = async (lat, lng) => {
+    try {
+      const res = await llamarAPI('fichar', { token: estado.token, qr_token: qrToken, lat, lng });
+      if (res.ok) {
+        const tipos = { entrada: 'Entrada', salida: 'Salida', pausa_comida: 'Pausa comida', vuelta_comida: 'Vuelta comida' };
+        toast(`✅ ${tipos[res.tipo] || res.tipo} en ${res.obra} a las ${res.hora}`, 'exito');
+        if (res.alerta) setTimeout(() => toast(`⚠️ Estás a ${res.distancia > 1000 ? (res.distancia/1000).toFixed(1)+'km' : Math.round(res.distancia)+'m'} de la obra`, 'error'), 1500);
+        if (res.tipo === 'entrada' && res.obra_lat && res.obra_lng) iniciarMonitorGPS(res.obra_lat, res.obra_lng);
+        if (res.tipo === 'salida') detenerMonitorGPS();
+        refrescarEmpleado();
+      } else { toast(res.error || 'Error al fichar', 'error'); }
+    } catch { toast('Error de conexión', 'error'); }
+  };
+
+  if (navigator.geolocation) {
+    const timer = setTimeout(() => ficharConCoords('', ''), 6000);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => { clearTimeout(timer); ficharConCoords(pos.coords.latitude, pos.coords.longitude); },
+      ()    => { clearTimeout(timer); ficharConCoords('', ''); },
+      { enableHighAccuracy: false, timeout: 6000, maximumAge: 30000 }
+    );
+  } else {
+    ficharConCoords('', '');
+  }
+}
+
+// ── ELIMINAR TRABAJADOR / OBRA ─────────────────────────────
+async function eliminarTrabajador(id, nombre) {
+  if (!confirm(t('confirmBorrarTrabajador')(nombre))) return;
+  try {
+    const res = await llamarAPI('admin_eliminar_trabajador', { token: estado.token, id });
+    if (res.ok) { toast(t('trabajadorEliminado'), 'exito'); cargarDatosAdmin(); }
+    else toast(res.error || 'Error al eliminar', 'error');
+  } catch { toast(t('errorConexion'), 'error'); }
+}
+
+async function eliminarObra(id, nombre) {
+  if (!confirm(t('confirmBorrarObra')(nombre))) return;
+  try {
+    const res = await llamarAPI('admin_eliminar_obra', { token: estado.token, id });
+    if (res.ok) { toast(t('obraEliminada'), 'exito'); cargarDatosAdmin(); }
+    else toast(res.error || 'Error al eliminar', 'error');
+  } catch { toast(t('errorConexion'), 'error'); }
+}
+
+// ── ALERTAS GPS (ADMIN) ────────────────────────────────────
+async function cargarAlertasGPS() {
+  try {
+    const res = await llamarAPI('admin_alertas_gps', { token: estado.token });
+    if (!res.ok) return;
+    const alertas = res.alertas || [];
+    const nb = {};
+    listaTrabajadores.forEach(tr => { nb[tr.id] = tr.nombre_corto || tr.nombre.split(' ')[0]; });
+    document.getElementById('kpi-alertas').textContent = alertas.length;
+    const fmt = ts => new Date(ts).toLocaleTimeString('es-ES', { hour:'2-digit', minute:'2-digit' });
+    const durMin = min => min >= 60 ? `${Math.floor(min/60)}h ${min%60}min` : `${min}min`;
+    document.getElementById('tabla-alertas-gps').innerHTML = alertas.length
+      ? alertas.map(a => `<tr>
+          <td><b>${nb[a.trabajador_id] || a.trabajador_id}</b></td>
+          <td>${a.obra_id || '—'}</td>
+          <td style="color:#dc2626;font-weight:600;">${fmt(a.timestamp_salida)}</td>
+          <td>${a.timestamp_vuelta ? fmt(a.timestamp_vuelta) : '<span style="color:#f59e0b;">Aún fuera</span>'}</td>
+          <td>${a.duracion_minutos != null ? durMin(a.duracion_minutos) : '—'}</td>
+          <td>${a.distancia_max ? Math.round(a.distancia_max) + ' m' : '—'}</td>
+        </tr>`).join('')
+      : `<tr><td colspan="6" style="text-align:center;color:#999;padding:20px;">Sin alertas hoy ✅</td></tr>`;
+  } catch {}
+}
+
+// ── INIT ───────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  aplicarIdioma();
+  cambiarIdioma(idiomaActual);
+
+  const sesion = cargarSesion();
+  if (sesion) {
+    estado.token = sesion.token; estado.rol = sesion.rol; estado.trabajador = sesion.trabajador;
+    entrarApp();
+  }
+
+  // Service Worker (PWA Android)
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+
+  // Banner iOS install
+  const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const esSafari = /safari/i.test(navigator.userAgent) && !/chrome/i.test(navigator.userAgent);
+  const yaInstalada = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  if (esIOS && esSafari && !yaInstalada && !localStorage.getItem('ios_banner_cerrado')) {
+    document.getElementById('ios-banner').style.display = 'block';
+    document.querySelector('#ios-banner button').addEventListener('click', () => {
+      localStorage.setItem('ios_banner_cerrado', '1');
+    });
+  }
+});
+</script>
+</body>
+</html>
