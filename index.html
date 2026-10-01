@@ -11,188 +11,301 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon.png">
 <link rel="icon" type="image/png" href="icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
 <title>App Empleados</title>
 <style>
+  /* ── COLORES Y MEDIDAS ─────────────────────────────────── */
+  :root {
+    --negro: #0A0A0A;
+    --negro-2: #18181B;
+    --negro-3: #27272A;
+    --amarillo: #FFD234;
+    --amarillo-suave: #FFF8DB;
+    --fondo: #F4F4F5;
+    --blanco: #FFFFFF;
+    --linea: #E4E4E7;
+    --texto-2: #71717A;
+    --texto-3: #A1A1AA;
+    --verde: #16a34a;  --verde-suave: #F0FDF4;  --verde-texto: #15803d;
+    --rojo: #dc2626;   --rojo-suave: #FEF2F2;   --rojo-texto: #b91c1c;
+    --naranja: #f59e0b;
+    --azul: #2563eb;   --azul-suave: #EFF6FF;   --azul-texto: #1d4ed8;
+    --lila-suave: #F5F3FF; --lila-texto: #6d28d9;
+    --sombra: 0 1px 2px rgba(0,0,0,.04), 0 10px 28px -16px rgba(0,0,0,.14);
+    --sombra-grande: 0 1px 2px rgba(0,0,0,.04), 0 12px 32px -12px rgba(0,0,0,.12);
+  }
+
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { height: 100%; overflow-x: hidden; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #F5F5F5; color: #0A0A0A; -webkit-font-smoothing: antialiased; }
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--fondo); color: var(--negro); -webkit-font-smoothing: antialiased; font-size: 15px; line-height: 1.45; }
+  button, input, select { font-family: inherit; }
+  :focus-visible { outline: 3px solid var(--amarillo); outline-offset: 2px; }
 
-  .pantalla { display: none; min-height: 100vh; padding: 24px; }
+  .pantalla { display: none; min-height: 100vh; padding: 22px 18px 32px; }
   .pantalla.activa { display: block; }
 
-  /* LOGIN */
-  #pantalla-login { background: #0A0A0A; color: white; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 0; }
+  /* ── LOGIN ─────────────────────────────────────────────── */
+  #pantalla-login { background: var(--negro); color: white; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 0; }
   #pantalla-login.activa { display: flex; }
   .login-marca { display: none; color: white; }
-  .login-box { width: 100%; max-width: 440px; padding: 48px 40px; }
+  .login-box { width: 100%; max-width: 440px; padding: 48px 28px; }
   @media (min-width: 900px) {
     #pantalla-login { flex-direction: row; }
-    .login-marca { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 60px; border-right: 1px solid #1a1a1a; }
-    .login-marca .logo { font-size: 48px; margin-bottom: 16px; color: white; }
-    .login-marca .tagline { color: #888; font-size: 16px; line-height: 1.7; max-width: 340px; }
+    .login-marca { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 60px; border-right: 1px solid var(--negro-2); }
+    .login-marca .logo { font-size: 52px; margin-bottom: 18px; color: white; }
+    .login-marca .tagline { color: var(--texto-3); font-size: 17px; line-height: 1.6; max-width: 360px; }
     .login-box { flex: 0 0 480px; padding: 60px 56px; }
     .login-box .logo { display: none; }
     .login-box .subtitulo { margin-bottom: 36px; }
   }
-  .logo { font-size: 32px; font-weight: 800; letter-spacing: -1px; margin-bottom: 8px; }
-  .logo span { color: #FFD234; }
-  .subtitulo { color: #888; margin-bottom: 32px; font-size: 14px; }
+  .logo { font-size: 34px; font-weight: 800; letter-spacing: -1.2px; line-height: 1.05; margin-bottom: 10px; }
+  .logo span { color: var(--amarillo); }
+  .subtitulo { color: var(--texto-3); margin-bottom: 32px; font-size: 15px; }
   .campo { margin-bottom: 16px; }
-  .campo label { display: block; font-size: 12px; color: #888; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-  .campo input { width: 100%; padding: 16px; border: 2px solid #222; border-radius: 12px; background: #111; color: white; font-size: 18px; font-weight: 600; transition: border-color 0.2s; }
-  .campo input:focus { outline: none; border-color: #FFD234; }
-  .btn-principal { width: 100%; padding: 18px; border: none; border-radius: 12px; background: #FFD234; color: #0A0A0A; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 8px; }
-  .btn-principal:active { transform: scale(0.98); }
-  .btn-principal:disabled { opacity: 0.5; cursor: not-allowed; }
-  .error { color: #ff4444; font-size: 14px; margin-top: 12px; min-height: 20px; }
+  .campo label { display: block; font-size: 13px; font-weight: 600; color: #D4D4D8; margin-bottom: 8px; }
+  .campo input { width: 100%; padding: 16px 18px; border: 1.5px solid var(--negro-3); border-radius: 16px; background: var(--negro-2); color: white; font-size: 18px; font-weight: 600; transition: border-color .2s, box-shadow .2s; }
+  .campo input::placeholder { color: #52525B; }
+  .campo input:focus { outline: none; border-color: var(--amarillo); box-shadow: 0 0 0 4px rgba(255,210,52,.18); }
+  .btn-principal { width: 100%; padding: 18px; border: none; border-radius: 16px; background: var(--amarillo); color: var(--negro); font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 10px; box-shadow: 0 10px 24px -10px rgba(255,210,52,.7); transition: transform .1s; }
+  .btn-principal:active { transform: scale(.98); }
+  .btn-principal:disabled { opacity: .6; cursor: not-allowed; }
+  .error { color: #f87171; font-size: 14px; margin-top: 12px; min-height: 20px; }
 
-  /* EMPLEADO */
+  /* ── PANTALLA DEL TRABAJADOR ───────────────────────────── */
   #pantalla-empleado { max-width: 480px; margin: 0 auto; }
-  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-  .header .saludo { font-size: 14px; color: #666; }
-  .header .nombre { font-size: 20px; font-weight: 700; }
-  .header .salir { background: none; border: none; color: #666; font-size: 13px; cursor: pointer; padding: 8px; }
-  .tarjeta-fichaje { background: white; border-radius: 20px; padding: 28px 24px; box-shadow: 0 2px 16px rgba(0,0,0,0.06); margin-bottom: 16px; text-align: center; }
-  .estado-actual { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #666; margin-bottom: 4px; }
-  .horas-hoy { font-size: 48px; font-weight: 800; letter-spacing: -2px; line-height: 1; }
-  .horas-hoy small { font-size: 20px; font-weight: 500; color: #666; }
-  .label-hoy { font-size: 13px; color: #666; margin-top: 4px; margin-bottom: 24px; }
-  .btn-fichar { width: 100%; padding: 22px; border: none; border-radius: 14px; font-size: 18px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
-  .btn-fichar:active { transform: scale(0.98); }
-  .btn-entrada { background: #16a34a; color: white; }
-  .btn-salida  { background: #dc2626; color: white; }
-  .btn-pausa   { background: #f59e0b; color: white; }
-  .btn-vuelta  { background: #2563eb; color: white; }
-  .tarjeta { background: white; border-radius: 16px; padding: 20px; margin-bottom: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
-  .tarjeta-titulo { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #666; margin-bottom: 12px; font-weight: 600; }
-  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .stat-num { font-size: 28px; font-weight: 800; letter-spacing: -1px; }
-  .stat-label { font-size: 12px; color: #666; }
-  .nomina-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid #f0f0f0; gap: 10px; }
-  .nomina-item:last-child { border-bottom: none; }
-  .nomina-info .mes { font-weight: 700; font-size: 15px; }
-  .nomina-info .estado { font-size: 12px; color: #666; }
-  .nomina-acciones { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
-  .badge-pendiente { background: #FFD234; color: #0A0A0A; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
-  .badge-firmada { background: #dcfce7; color: #16a34a; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
-  .btn-firmar { background: #0A0A0A; color: white; border: none; border-radius: 8px; padding: 8px 14px; font-size: 12px; font-weight: 700; cursor: pointer; }
-  .btn-ver-pdf { background: none; color: #2563eb; border: none; font-size: 12px; font-weight: 600; cursor: pointer; text-decoration: underline; }
+  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; gap: 12px; }
+  .yo { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .avatar { width: 44px; height: 44px; border-radius: 14px; background: var(--negro); color: var(--amarillo); display: grid; place-items: center; font-weight: 800; font-size: 18px; flex-shrink: 0; }
+  .header .saludo { font-size: 13px; color: var(--texto-2); }
+  .header .nombre { font-size: 20px; font-weight: 800; letter-spacing: -.4px; line-height: 1.15; }
+  .header-acciones { display: flex; align-items: center; gap: 6px; }
+  .header .salir { background: none; border: none; color: var(--texto-2); font-size: 13px; font-weight: 600; cursor: pointer; padding: 8px 4px; }
+  .lang-seg { display: flex; background: white; border-radius: 10px; padding: 3px; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+  .lang-seg .lang-btn { border: none; color: var(--texto-2); font-size: 11px; padding: 5px 8px; border-radius: 7px; background: none; }
+  .lang-seg .lang-btn:hover { color: var(--negro); }
+  .lang-seg .lang-btn.activo { background: var(--negro); color: var(--amarillo); }
 
-  /* ADMIN ESCRITORIO */
+  .tarjeta-fichaje { background: white; border-radius: 28px; padding: 26px 22px 22px; margin-bottom: 14px; text-align: center; box-shadow: var(--sombra-grande); }
+  .estado-actual { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--texto-2); background: var(--fondo); padding: 6px 13px; border-radius: 999px; margin-bottom: 14px; }
+  .estado-actual::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--texto-3); }
+  .tarjeta-fichaje[data-estado="entrada"] .estado-actual,
+  .tarjeta-fichaje[data-estado="vuelta_comida"] .estado-actual { color: var(--verde-texto); background: var(--verde-suave); }
+  .tarjeta-fichaje[data-estado="entrada"] .estado-actual::before,
+  .tarjeta-fichaje[data-estado="vuelta_comida"] .estado-actual::before { background: var(--verde); box-shadow: 0 0 0 4px rgba(22,163,74,.18); }
+  .tarjeta-fichaje[data-estado="pausa_comida"] .estado-actual { color: #92400e; background: #FFFBEB; }
+  .tarjeta-fichaje[data-estado="pausa_comida"] .estado-actual::before { background: var(--naranja); box-shadow: 0 0 0 4px rgba(245,158,11,.18); }
+  .horas-hoy { font-size: 56px; font-weight: 800; letter-spacing: -2.5px; line-height: 1; font-variant-numeric: tabular-nums; }
+  .horas-hoy small { font-size: 20px; font-weight: 600; color: var(--texto-3); letter-spacing: 0; margin: 0 4px 0 2px; }
+  .label-hoy { font-size: 13px; color: var(--texto-2); margin: 6px 0 16px; }
+
+  /* Barra del día: amarillo hasta las 8 h, rojo lo que pase (extras) */
+  .barra-dia { height: 6px; background: var(--fondo); border-radius: 999px; overflow: hidden; margin: 0 6px 6px; display: flex; }
+  .barra-dia .barra-ord { background: var(--amarillo); width: 0; transition: width .6s ease; }
+  .barra-dia .barra-ext { background: var(--rojo); width: 0; transition: width .6s ease; }
+  .escala-dia { position: relative; height: 14px; font-size: 11px; color: var(--texto-3); margin: 0 6px 20px; font-weight: 500; }
+  .escala-dia span { position: absolute; top: 0; }
+  .escala-dia span:nth-child(1) { left: 0; }
+  .escala-dia span:nth-child(2) { left: 80%; transform: translateX(-50%); }   /* 8 h de una escala de 10 h */
+  .escala-dia span:nth-child(3) { right: 0; }
+
+  .btn-fichar { width: 100%; padding: 20px; border: none; border-radius: 18px; font-size: 17px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; color: white; box-shadow: inset 0 1px 0 rgba(255,255,255,.3); transition: transform .1s; }
+  .btn-fichar:active { transform: scale(.98); }
+  .btn-fichar:disabled { opacity: .8; cursor: wait; }
+  .btn-entrada { background: linear-gradient(180deg, #22c55e, var(--verde)); box-shadow: 0 10px 24px -8px rgba(22,163,74,.6), inset 0 1px 0 rgba(255,255,255,.3); }
+  .btn-salida  { background: linear-gradient(180deg, #ef4444, var(--rojo));  box-shadow: 0 10px 24px -8px rgba(220,38,38,.6), inset 0 1px 0 rgba(255,255,255,.3); }
+  .btn-pausa   { background: linear-gradient(180deg, #fbbf24, var(--naranja)); box-shadow: 0 10px 24px -8px rgba(245,158,11,.65), inset 0 1px 0 rgba(255,255,255,.35); }
+  .btn-vuelta  { background: linear-gradient(180deg, #3b82f6, var(--azul)); box-shadow: 0 10px 24px -8px rgba(37,99,235,.6), inset 0 1px 0 rgba(255,255,255,.3); }
+
+  .tarjeta { background: white; border-radius: 22px; padding: 20px; margin-bottom: 12px; box-shadow: var(--sombra); }
+  .tarjeta-titulo { font-size: 15px; font-weight: 700; margin-bottom: 14px; letter-spacing: -.2px; }
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stats > div { background: #FAFAFA; border-radius: 14px; padding: 12px 10px; min-width: 0; }
+  .stat-num { font-size: 19px; font-weight: 800; letter-spacing: -.6px; line-height: 1.15; font-variant-numeric: tabular-nums; }
+  .stat-num small { font-size: 12px; font-weight: 600; margin-right: 2px; }
+  .stat-label { font-size: 12px; color: var(--texto-2); margin-top: 4px; }
+
+  .nomina-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--fondo); gap: 12px; }
+  .nomina-item:first-child { padding-top: 0; }
+  .nomina-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .nomina-item::before { content: '📄'; width: 40px; height: 40px; border-radius: 12px; background: var(--amarillo-suave); display: grid; place-items: center; font-size: 18px; flex-shrink: 0; }
+  .nomina-info { flex: 1; min-width: 0; }
+  .nomina-info .mes { font-weight: 700; font-size: 15px; }
+  .nomina-info .estado { font-size: 12px; color: var(--texto-2); }
+  .nomina-acciones { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+  .badge-pendiente { background: var(--amarillo-suave); color: #8a6d00; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+  .badge-firmada { background: var(--verde-suave); color: var(--verde-texto); padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+  .btn-firmar { background: var(--negro); color: var(--amarillo); border: none; border-radius: 12px; padding: 10px 16px; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .btn-firmar:active { transform: scale(.97); }
+  .btn-ver-pdf { background: none; color: var(--azul); border: none; font-size: 13px; font-weight: 600; cursor: pointer; }
+
+  /* ── PANEL ADMIN ───────────────────────────────────────── */
   #pantalla-admin { padding: 0; }
   #pantalla-admin.activa { display: flex; min-height: 100vh; }
-  .sidebar { width: 240px; background: #0A0A0A; color: white; padding: 24px 0; flex-shrink: 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; }
-  .sidebar-logo { padding: 0 24px 24px; border-bottom: 1px solid #1a1a1a; font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
-  .sidebar-logo span { color: #FFD234; }
-  .sidebar-logo small { display: block; font-size: 11px; color: #666; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
-  .sidebar-nav { padding: 16px 0; flex: 1; }
-  .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 24px; color: #ccc; cursor: pointer; font-size: 14px; font-weight: 500; transition: background 0.15s; border-left: 3px solid transparent; }
-  .nav-item:hover { background: #111; color: white; }
-  .nav-item.activo { background: #111; color: #FFD234; border-left-color: #FFD234; }
-  .nav-item .icono { font-size: 18px; width: 22px; text-align: center; }
-  .sidebar-foot { padding: 16px 24px; border-top: 1px solid #1a1a1a; font-size: 12px; color: #666; }
-  .sidebar-foot button { background: none; border: none; color: #888; font-size: 12px; cursor: pointer; margin-top: 6px; display: block; }
-  .sidebar-foot button:hover { color: #FFD234; }
-  .admin-main { flex: 1; padding: 32px 40px; overflow-y: auto; }
-  .page-header { margin-bottom: 28px; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px; }
-  .page-header h1 { font-size: 28px; font-weight: 800; letter-spacing: -1px; }
-  .page-header .subt { color: #666; font-size: 14px; margin-top: 4px; }
+  .sidebar { width: 248px; background: var(--negro); color: white; padding: 22px 14px; flex-shrink: 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; }
+  .sidebar-logo { display: flex; align-items: center; gap: 12px; padding: 0 8px 22px; }
+  .sidebar-logo .logo-ico { width: 38px; height: 38px; border-radius: 11px; background: var(--amarillo); color: var(--negro); display: grid; place-items: center; font-weight: 800; flex-shrink: 0; }
+  .sidebar-logo b { display: block; font-size: 16px; font-weight: 800; }
+  .sidebar-logo small { display: block; font-size: 12px; color: var(--texto-2); }
+  .sidebar-nav { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+  .nav-item { display: flex; align-items: center; gap: 12px; padding: 11px 12px; color: var(--texto-3); cursor: pointer; font-size: 14px; font-weight: 500; border-radius: 12px; transition: background .15s, color .15s; }
+  .nav-item:hover { background: var(--negro-2); color: white; }
+  .nav-item.activo { background: var(--amarillo); color: var(--negro); font-weight: 700; box-shadow: 0 8px 20px -8px rgba(255,210,52,.6); }
+  .nav-item .icono { font-size: 17px; width: 22px; text-align: center; }
+  .nav-badge { margin-left: auto; background: var(--rojo); color: white; font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 999px; }
+  .nav-badge[hidden] { display: none; }
+  .sidebar-foot { padding: 12px; background: var(--negro-2); border-radius: 14px; font-size: 13px; }
+  .sidebar-usuario { display: flex; align-items: center; gap: 10px; }
+  .sidebar-usuario .av { width: 34px; height: 34px; border-radius: 10px; background: var(--negro-3); color: var(--amarillo); display: grid; place-items: center; font-weight: 700; flex-shrink: 0; }
+  .sidebar-foot b { color: white; font-weight: 600; }
+  .sidebar-foot button { background: none; border: none; color: var(--texto-2); font-size: 12px; cursor: pointer; display: block; padding: 0; }
+  .sidebar-foot button:hover { color: var(--amarillo); }
+  .admin-main { flex: 1; padding: 30px 36px; overflow-y: auto; min-width: 0; }
+  .page-header { margin-bottom: 22px; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px; }
+  .page-header h1 { font-size: 28px; font-weight: 800; letter-spacing: -.8px; line-height: 1.1; }
+  .page-header .subt { color: var(--texto-2); font-size: 14px; margin-top: 4px; }
   .admin-pagina { display: none; }
   .admin-pagina.activa { display: block; }
-  .btn { border: none; border-radius: 10px; padding: 12px 20px; font-size: 14px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
-  .btn:active { transform: scale(0.97); }
-  .btn-primario { background: #FFD234; color: #0A0A0A; }
-  .btn-secundario { background: white; color: #0A0A0A; border: 1px solid #ddd; }
-  .btn-peligro { background: #dc2626; color: white; }
-  .grid-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 28px; }
-  .kpi { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
-  .kpi-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: #666; font-weight: 600; }
-  .kpi-num { font-size: 36px; font-weight: 800; letter-spacing: -1.5px; margin-top: 6px; }
-  .kpi-detalle { font-size: 12px; color: #16a34a; margin-top: 4px; font-weight: 600; }
-  .kpi-detalle.rojo { color: #dc2626; }
-  .panel { background: white; border-radius: 14px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); margin-bottom: 20px; }
-  .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
-  .panel-header h3 { font-size: 16px; font-weight: 700; }
-  .tabla { width: 100%; border-collapse: collapse; }
-  .tabla th, .tabla td { padding: 12px 8px; text-align: left; font-size: 13px; border-bottom: 1px solid #f0f0f0; }
-  .tabla th { background: #fafafa; font-weight: 700; color: #666; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
-  .tabla tr:hover td { background: #fafafa; }
-  .badge { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
-  .badge-verde { background: #dcfce7; color: #16a34a; }
-  .badge-amarillo { background: #fef3c7; color: #92400e; }
-  .badge-rojo { background: #fee2e2; color: #dc2626; }
-  .badge-gris { background: #f0f0f0; color: #666; }
-  .punto-vivo { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #16a34a; margin-right: 6px; animation: pulso 1.5s infinite; }
-  @keyframes pulso { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-  .accion-link { color: #2563eb; cursor: pointer; font-weight: 600; font-size: 13px; }
+
+  .btn { border: none; border-radius: 12px; padding: 11px 18px; font-size: 14px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: white; color: var(--negro); box-shadow: inset 0 0 0 1px var(--linea); transition: transform .1s; }
+  .btn:active { transform: scale(.97); }
+  .btn-primario { background: var(--amarillo); color: var(--negro); box-shadow: 0 8px 20px -10px rgba(255,210,52,.8); }
+  .page-header .btn-primario { background: var(--negro); color: var(--amarillo); box-shadow: none; }
+  .btn-secundario { background: white; color: var(--negro); box-shadow: inset 0 0 0 1px var(--linea); }
+  .btn-peligro { background: var(--rojo); color: white; box-shadow: none; }
+
+  /* Interruptor Por semana / Por mes */
+  .seg { display: inline-flex; background: var(--fondo); border-radius: 12px; padding: 4px; }
+  .seg .btn { background: none; box-shadow: none; color: var(--texto-2); font-weight: 600; padding: 8px 16px; border-radius: 9px; }
+  .seg .btn.btn-primario { background: white; color: var(--negro); box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+
+  .grid-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 22px; }
+  .kpi { background: white; border-radius: 20px; padding: 18px; box-shadow: var(--sombra); }
+  .kpi-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .kpi-label { font-size: 13px; color: var(--texto-2); font-weight: 500; }
+  .kpi-chip { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; font-size: 16px; flex-shrink: 0; }
+  .kpi-num { font-size: 34px; font-weight: 800; letter-spacing: -1.2px; margin-top: 10px; line-height: 1; font-variant-numeric: tabular-nums; }
+  .kpi-detalle { display: inline-block; font-size: 12px; font-weight: 600; margin-top: 10px; padding: 3px 9px; border-radius: 999px; background: var(--verde-suave); color: var(--verde-texto); }
+  .kpi-detalle.rojo { background: var(--rojo-suave); color: var(--rojo-texto); }
+  .kpi-detalle.gris { background: var(--fondo); color: #52525B; }
+  .verde-s { background: var(--verde-suave); } .rojo-s { background: var(--rojo-suave); } .gris-s { background: var(--fondo); } .amarillo-s { background: var(--amarillo-suave); }
+
+  .panel { background: white; border-radius: 20px; padding: 22px; box-shadow: var(--sombra); margin-bottom: 18px; }
+  .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
+  .panel-header h3 { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .filtros { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+  .filtros select, .filtros input { font-size: 14px; padding: 10px 14px; border-radius: 12px; border: none; background: var(--fondo); outline: none; }
+  .filtros select:focus, .filtros input:focus { box-shadow: 0 0 0 3px rgba(255,210,52,.45); }
+
+  .tabla { width: 100%; border-collapse: separate; border-spacing: 0; }
+  .tabla th, .tabla td { padding: 12px; text-align: left; font-size: 14px; border-bottom: 1px solid var(--fondo); }
+  .tabla td { font-variant-numeric: tabular-nums; }
+  .tabla th { background: #FAFAFA; font-weight: 600; color: var(--texto-2); font-size: 12px; border-bottom: none; white-space: nowrap; }
+  .tabla th:first-child { border-radius: 10px 0 0 10px; }
+  .tabla th:last-child { border-radius: 0 10px 10px 0; }
+  .tabla tbody tr:last-child td { border-bottom: none; }
+  .tabla tbody tr:hover td { background: #FFFCF0; }
+  .persona { display: flex; align-items: center; gap: 10px; font-weight: 600; white-space: nowrap; }
+  .ini { width: 30px; height: 30px; border-radius: 9px; background: var(--fondo); display: grid; place-items: center; font-size: 12px; font-weight: 700; color: #3F3F46; flex-shrink: 0; }
+  .acciones { display: flex; gap: 6px; flex-wrap: wrap; }
+  .pin-celda { display: inline-flex; align-items: center; gap: 6px; }
+  .pin-valor { min-width: 38px; font-weight: 600; letter-spacing: 1px; }
+  .ojo { border: none; background: var(--fondo); border-radius: 8px; width: 28px; height: 28px; cursor: pointer; font-size: 14px; opacity: .6; }
+  .ojo:hover, .ojo.activo { opacity: 1; background: var(--amarillo-suave); }
+  .mini { font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 9px; background: var(--fondo); color: var(--negro); border: none; cursor: pointer; white-space: nowrap; text-decoration: none; display: inline-block; }
+  .mini:hover { background: var(--linea); }
+  .mini.azul { background: var(--azul-suave); color: var(--azul-texto); }
+  .mini.verde { background: var(--verde-suave); color: var(--verde-texto); }
+  .mini.del { background: var(--rojo-suave); color: var(--rojo-texto); }
+
+  .badge, .pill { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+  .badge-verde, .pill.verde { background: var(--verde-suave); color: var(--verde-texto); }
+  .badge-amarillo, .pill.amarillo { background: var(--amarillo-suave); color: #8a6d00; }
+  .badge-rojo, .pill.rojo { background: var(--rojo-suave); color: var(--rojo-texto); }
+  .badge-gris, .pill.gris { background: var(--fondo); color: #52525B; }
+  .pill.lila { background: var(--lila-suave); color: var(--lila-texto); }
+  .punto-vivo { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--verde); box-shadow: 0 0 0 4px rgba(22,163,74,.18); animation: pulso 1.8s infinite; }
+  @keyframes pulso { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }
+  .accion-link { color: var(--azul-texto); cursor: pointer; font-weight: 600; font-size: 13px; }
   .accion-link:hover { text-decoration: underline; }
-  .accion-link.rojo { color: #dc2626; }
-  .btn-eliminar { background: none; border: 1px solid #fca5a5; color: #dc2626; border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; cursor: pointer; }
-  .btn-eliminar:hover { background: #fef2f2; }
-  /* FIRMA GUARDADA */
-  .firma-guardada-preview { background: #f9fafb; border: 2px solid #e5e5e5; border-radius: 12px; padding: 12px; text-align: center; margin-bottom: 12px; }
+  .accion-link.rojo { color: var(--rojo-texto); }
+  .btn-eliminar { font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 9px; background: var(--rojo-suave); color: var(--rojo-texto); border: none; cursor: pointer; }
+
+  /* ── FIRMA GUARDADA ────────────────────────────────────── */
+  .firma-guardada-preview { background: #FAFAFA; border: 1.5px solid var(--linea); border-radius: 16px; padding: 12px; text-align: center; margin-bottom: 12px; }
   .firma-guardada-preview img { max-height: 80px; max-width: 100%; }
-  .firma-guardada-preview p { font-size: 12px; color: #666; margin-top: 6px; }
-  /* iOS INSTALL BANNER */
-  #ios-banner { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: #0A0A0A; color: white; padding: 16px 20px; z-index: 500; text-align: center; font-size: 13px; }
-  #ios-banner strong { display: block; font-size: 14px; margin-bottom: 4px; }
-  #ios-banner .ios-steps { color: #aaa; margin: 6px 0 10px; }
-  #ios-banner button { background: #FFD234; color: #0A0A0A; border: none; border-radius: 8px; padding: 8px 20px; font-weight: 700; cursor: pointer; }
+  .firma-guardada-preview p { font-size: 13px; color: var(--texto-2); margin-top: 6px; }
 
-  /* MODALES */
-  .modal-bg { position: fixed; inset: 0; background: rgba(10,10,10,0.6); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; }
+  /* ── BANNER iOS ────────────────────────────────────────── */
+  #ios-banner { display: none; position: fixed; bottom: 12px; left: 12px; right: 12px; background: var(--negro); color: white; padding: 18px 20px; z-index: 500; text-align: center; font-size: 14px; border-radius: 20px; box-shadow: 0 20px 40px -10px rgba(0,0,0,.4); }
+  #ios-banner strong { display: block; font-size: 15px; margin-bottom: 4px; }
+  #ios-banner .ios-steps { color: var(--texto-3); margin: 6px 0 12px; }
+  #ios-banner button { background: var(--amarillo); color: var(--negro); border: none; border-radius: 12px; padding: 10px 24px; font-weight: 700; cursor: pointer; }
+
+  /* ── VENTANAS (MODALES) ────────────────────────────────── */
+  .modal-bg { position: fixed; inset: 0; background: rgba(10,10,10,.5); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); z-index: 100; display: none; align-items: center; justify-content: center; padding: 16px; }
   .modal-bg.activa { display: flex; }
-  .modal-card { background: white; border-radius: 16px; padding: 28px; max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; }
-  .modal-card h2 { font-size: 20px; margin-bottom: 6px; font-weight: 800; }
-  .modal-card .subtit { color: #666; font-size: 13px; margin-bottom: 20px; }
+  .modal-card { background: white; border-radius: 24px; padding: 28px 24px; max-width: 460px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 30px 80px -20px rgba(0,0,0,.4); }
+  .modal-card h2 { font-size: 22px; margin-bottom: 4px; font-weight: 800; letter-spacing: -.4px; }
+  .modal-card .subtit { color: var(--texto-2); font-size: 14px; margin-bottom: 20px; }
   .campo-form { margin-bottom: 14px; }
-  .campo-form label { display: block; font-size: 12px; font-weight: 600; color: #666; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.4px; }
-  .campo-form input, .campo-form select { width: 100%; padding: 12px 14px; border: 1.5px solid #e5e5e5; border-radius: 10px; font-size: 14px; font-family: inherit; transition: border-color 0.15s; background: white; }
-  .campo-form input:focus, .campo-form select:focus { outline: none; border-color: #0A0A0A; }
+  .campo-form label { display: block; font-size: 13px; font-weight: 600; color: #3F3F46; margin-bottom: 6px; }
+  .campo-form input, .campo-form select { width: 100%; padding: 12px 14px; border: 1.5px solid var(--linea); border-radius: 12px; font-size: 15px; transition: border-color .15s, box-shadow .15s; background: white; }
+  .campo-form input:focus, .campo-form select:focus { outline: none; border-color: var(--negro); box-shadow: 0 0 0 3px rgba(255,210,52,.45); }
 
-  /* DROP ZONE */
-  .drop-zone { border: 2px dashed #d4d4d4; border-radius: 12px; padding: 28px 20px; text-align: center; cursor: pointer; transition: all 0.15s; background: #fafafa; }
-  .drop-zone:hover, .drop-zone.activa { border-color: #FFD234; background: #fffbeb; }
+  /* ── ZONA PARA SUBIR PDF ───────────────────────────────── */
+  .drop-zone { border: 2px dashed #D4D4D8; border-radius: 16px; padding: 28px 20px; text-align: center; cursor: pointer; transition: border-color .15s, background .15s; background: #FAFAFA; }
+  .drop-zone:hover, .drop-zone.activa { border-color: var(--amarillo); background: #FFFCF0; }
   .drop-zone .dz-icono { font-size: 32px; margin-bottom: 8px; }
-  .drop-zone .dz-texto { font-size: 14px; font-weight: 600; }
-  .drop-zone .dz-sub { font-size: 12px; color: #666; margin-top: 4px; }
-  .drop-zone .dz-nombre { font-size: 13px; font-weight: 700; color: #16a34a; margin-top: 8px; }
+  .drop-zone .dz-texto { font-size: 15px; font-weight: 700; }
+  .drop-zone .dz-sub { font-size: 13px; color: var(--texto-2); margin-top: 4px; }
+  .drop-zone .dz-nombre { font-size: 14px; font-weight: 700; color: var(--verde-texto); margin-top: 8px; }
 
-  /* SELECTOR IDIOMA */
-  .lang-selector { display: flex; gap: 6px; margin-top: 16px; }
-  .lang-btn { background: none; border: 1px solid #333; color: #888; border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
-  .lang-btn:hover { border-color: #FFD234; color: #FFD234; }
-  .lang-btn.activo { background: #FFD234; color: #0A0A0A; border-color: #FFD234; }
-  .lang-selector-sidebar { display: flex; gap: 4px; margin-top: 8px; }
-  .lang-selector-sidebar .lang-btn { border-color: #222; font-size: 11px; padding: 3px 8px; }
+  /* ── IDIOMA ────────────────────────────────────────────── */
+  .lang-selector { display: flex; gap: 6px; margin-top: 20px; }
+  .lang-btn { background: none; border: 1px solid var(--negro-3); color: var(--texto-3); border-radius: 9px; padding: 5px 11px; font-size: 12px; font-weight: 600; cursor: pointer; transition: border-color .15s, color .15s, background .15s; }
+  .lang-btn:hover { border-color: var(--amarillo); color: var(--amarillo); }
+  .lang-btn.activo { background: var(--amarillo); color: var(--negro); border-color: var(--amarillo); }
+  .lang-selector-sidebar { display: flex; gap: 4px; margin-top: 10px; }
+  .lang-selector-sidebar .lang-btn { font-size: 11px; padding: 3px 8px; }
 
-  /* CANVAS FIRMA */
-  .firma-wrap { border: 2px solid #e5e5e5; border-radius: 12px; background: white; overflow: hidden; position: relative; }
-  .firma-wrap canvas { display: block; touch-action: none; cursor: crosshair; }
-  .firma-label { font-size: 11px; color: #999; text-align: center; padding: 6px; border-top: 1px solid #f0f0f0; }
+  /* ── FIRMA ─────────────────────────────────────────────── */
+  .firma-wrap { border: 1.5px solid var(--linea); border-radius: 16px; background: white; overflow: hidden; position: relative; }
+  .firma-wrap canvas { display: block; width: 100%; touch-action: none; cursor: crosshair; }
+  .firma-label { font-size: 12px; color: var(--texto-3); text-align: center; padding: 6px; border-top: 1px solid var(--fondo); }
 
-  /* MODAL CÁMARA */
-  .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 200; display: none; flex-direction: column; }
+  /* ── ESCÁNER QR ────────────────────────────────────────── */
+  .modal { position: fixed; inset: 0; background: rgba(0,0,0,.96); z-index: 200; display: none; flex-direction: column; }
   .modal.activa { display: flex; }
-  .modal-header { padding: 16px; color: white; display: flex; justify-content: space-between; align-items: center; }
-  .modal-cerrar { background: none; border: none; color: white; font-size: 24px; cursor: pointer; }
+  .modal-header { padding: 18px 16px; color: white; display: flex; justify-content: space-between; align-items: center; font-weight: 700; }
+  .modal-cerrar { background: var(--negro-2); border: none; color: white; font-size: 18px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; }
   #video { flex: 1; width: 100%; object-fit: cover; }
-  .modal-info { padding: 20px; color: white; text-align: center; font-size: 14px; }
+  .modal-info { padding: 20px; color: #D4D4D8; text-align: center; font-size: 15px; }
 
-  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #0A0A0A; color: white; padding: 14px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; z-index: 300; box-shadow: 0 4px 20px rgba(0,0,0,0.3); opacity: 0; pointer-events: none; transition: opacity 0.3s; max-width: 90%; text-align: center; }
-  .toast.visible { opacity: 1; }
-  .toast.exito { background: #16a34a; }
-  .toast.error { background: #dc2626; }
-  .loader { display: inline-block; width: 18px; height: 18px; border: 3px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; }
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(8px); background: var(--negro); color: white; padding: 14px 20px; border-radius: 16px; font-size: 14px; font-weight: 600; z-index: 300; box-shadow: 0 16px 40px -10px rgba(0,0,0,.4); opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s; max-width: calc(100% - 32px); text-align: center; }
+  .toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.exito { background: var(--verde); }
+  .toast.error { background: var(--rojo); }
+  .loader { display: inline-block; width: 18px; height: 18px; border: 3px solid rgba(255,255,255,.3); border-top-color: white; border-radius: 50%; animation: spin .8s linear infinite; vertical-align: middle; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
   @media (max-width: 768px) {
-    .sidebar { width: 64px; }
-    .sidebar-logo small, .nav-item span:not(.icono), .sidebar-foot span { display: none; }
-    .sidebar-logo { font-size: 14px; padding: 0 12px 24px; }
-    .nav-item { padding: 14px; justify-content: center; }
-    .admin-main { padding: 20px 16px; }
-    .sidebar-foot { padding: 12px; }
+    .sidebar { width: 68px; padding: 18px 8px; }
+    .sidebar-logo { padding: 0 0 18px; justify-content: center; }
+    .sidebar-logo div:not(.logo-ico), .nav-item span:not(.icono), .nav-badge, .sidebar-usuario > div:not(.av), .lang-selector-sidebar { display: none; }
+    .nav-item { padding: 12px; justify-content: center; }
+    .sidebar-foot { padding: 8px; display: flex; justify-content: center; }
+    .admin-main { padding: 22px 14px; }
+    .page-header h1 { font-size: 24px; }
+    .panel { padding: 16px; overflow-x: auto; }
+  }
+  @media (max-width: 380px) {
+    .horas-hoy { font-size: 46px; }
+    .stat-num { font-size: 16px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
   }
 </style>
 </head>
@@ -228,23 +341,28 @@
 <!-- EMPLEADO -->
 <div id="pantalla-empleado" class="pantalla">
   <div class="header">
-    <div>
-      <div class="saludo" data-i18n="hola">Hola,</div>
-      <div class="nombre" id="nombre-empleado">—</div>
+    <div class="yo">
+      <div class="avatar" id="avatar-empleado">·</div>
+      <div>
+        <div class="saludo" data-i18n="hola">Hola,</div>
+        <div class="nombre" id="nombre-empleado">—</div>
+      </div>
     </div>
-    <div style="display:flex;align-items:center;gap:8px;">
-      <div style="display:flex;gap:4px;">
-        <button class="lang-btn activo" onclick="cambiarIdioma('es')" style="border-color:#ddd;color:#666;font-size:11px;padding:3px 7px;">ES</button>
-        <button class="lang-btn" onclick="cambiarIdioma('ca')" style="border-color:#ddd;color:#666;font-size:11px;padding:3px 7px;">CA</button>
-        <button class="lang-btn" onclick="cambiarIdioma('pt')" style="border-color:#ddd;color:#666;font-size:11px;padding:3px 7px;">PT</button>
+    <div class="header-acciones">
+      <div class="lang-seg">
+        <button class="lang-btn activo" onclick="cambiarIdioma('es')">ES</button>
+        <button class="lang-btn" onclick="cambiarIdioma('ca')">CA</button>
+        <button class="lang-btn" onclick="cambiarIdioma('pt')">PT</button>
       </div>
       <button class="salir" data-i18n="salir" onclick="cerrarSesion()">Salir</button>
     </div>
   </div>
-  <div class="tarjeta-fichaje">
+  <div class="tarjeta-fichaje" id="tarjeta-fichaje">
     <div class="estado-actual" id="estado-actual">Cargando…</div>
     <div class="horas-hoy" id="horas-hoy">0<small>h</small> 0<small>min</small></div>
     <div class="label-hoy">trabajadas hoy</div>
+    <div class="barra-dia" aria-hidden="true"><div class="barra-ord" id="barra-hoy-ord"></div><div class="barra-ext" id="barra-hoy-ext"></div></div>
+    <div class="escala-dia" aria-hidden="true"><span>0 h</span><span>8 h</span><span>10 h</span></div>
     <button class="btn-fichar btn-entrada" id="btn-fichar" onclick="abrirEscaner()">📷 Fichar entrada</button>
   </div>
   <div class="tarjeta">
@@ -264,18 +382,20 @@
 <!-- ADMIN -->
 <div id="pantalla-admin" class="pantalla">
   <aside class="sidebar">
-    <div class="sidebar-logo">Panel<span>.</span>Admin<small>App Empleados</small></div>
+    <div class="sidebar-logo"><div class="logo-ico">E</div><div><b>Panel admin</b><small>App Empleados</small></div></div>
     <nav class="sidebar-nav">
       <div class="nav-item activo" data-pag="dashboard"><span class="icono">📊</span><span>Dashboard</span></div>
       <div class="nav-item" data-pag="trabajadores"><span class="icono">👥</span><span>Trabajadores</span></div>
       <div class="nav-item" data-pag="obras"><span class="icono">🏗️</span><span>Obras</span></div>
       <div class="nav-item" data-pag="fichajes"><span class="icono">⏱️</span><span>Fichajes</span></div>
       <div class="nav-item" data-pag="horas"><span class="icono">📈</span><span>Horas</span></div>
-      <div class="nav-item" data-pag="nominas"><span class="icono">📄</span><span>Nóminas</span></div>
+      <div class="nav-item" data-pag="nominas"><span class="icono">📄</span><span>Nóminas</span><b class="nav-badge" id="badge-nominas" hidden></b></div>
     </nav>
     <div class="sidebar-foot">
-      <span>Sesión: <b id="nombre-admin">—</b></span><br>
-      <button data-i18n="cerrarSesion" onclick="cerrarSesion()">Cerrar sesión</button>
+      <div class="sidebar-usuario">
+        <div class="av" id="admin-inicial" title="Cerrar sesión" onclick="if (window.innerWidth <= 768 && confirm('¿Cerrar sesión?')) cerrarSesion()">·</div>
+        <div><b id="nombre-admin">—</b><button data-i18n="cerrarSesion" onclick="cerrarSesion()">Cerrar sesión</button></div>
+      </div>
       <div class="lang-selector-sidebar">
         <button class="lang-btn activo" onclick="cambiarIdioma('es')">ES</button>
         <button class="lang-btn" onclick="cambiarIdioma('ca')">CA</button>
@@ -291,21 +411,21 @@
         <div><h1>Dashboard</h1><div class="subt">Vista general · <span id="fecha-hoy"></span></div></div>
       </div>
       <div class="grid-kpis">
-        <div class="kpi"><div class="kpi-label">Trabajando ahora</div><div class="kpi-num" id="kpi-activos">—</div><div class="kpi-detalle"><span class="punto-vivo"></span>en tiempo real</div></div>
-        <div class="kpi"><div class="kpi-label">Fichajes hoy</div><div class="kpi-num" id="kpi-fichajes-hoy">—</div><div class="kpi-detalle">entradas + salidas</div></div>
-        <div class="kpi"><div class="kpi-label">Nóminas pendientes</div><div class="kpi-num" id="kpi-nominas">—</div><div class="kpi-detalle rojo">sin firmar</div></div>
-        <div class="kpi"><div class="kpi-label">Obras activas</div><div class="kpi-num" id="kpi-obras">—</div><div class="kpi-detalle">con QR activo</div></div>
-        <div class="kpi"><div class="kpi-label">Alertas GPS hoy</div><div class="kpi-num" id="kpi-alertas" style="color:#dc2626;">—</div><div class="kpi-detalle rojo">fuera de perímetro</div></div>
+        <div class="kpi"><div class="kpi-head"><div class="kpi-label">Trabajando ahora</div><span class="kpi-chip verde-s">👷</span></div><div class="kpi-num" id="kpi-activos">—</div><div class="kpi-detalle"><span class="punto-vivo"></span>&nbsp; en tiempo real</div></div>
+        <div class="kpi"><div class="kpi-head"><div class="kpi-label">Fichajes hoy</div><span class="kpi-chip gris-s">⏱️</span></div><div class="kpi-num" id="kpi-fichajes-hoy">—</div><div class="kpi-detalle gris">entradas + salidas</div></div>
+        <div class="kpi"><div class="kpi-head"><div class="kpi-label">Nóminas pendientes</div><span class="kpi-chip amarillo-s">📄</span></div><div class="kpi-num" id="kpi-nominas">—</div><div class="kpi-detalle rojo">sin firmar</div></div>
+        <div class="kpi"><div class="kpi-head"><div class="kpi-label">Obras activas</div><span class="kpi-chip gris-s">🏗️</span></div><div class="kpi-num" id="kpi-obras">—</div><div class="kpi-detalle gris">con QR activo</div></div>
+        <div class="kpi"><div class="kpi-head"><div class="kpi-label">Alertas GPS hoy</div><span class="kpi-chip rojo-s">📍</span></div><div class="kpi-num" id="kpi-alertas" style="color:#dc2626;">—</div><div class="kpi-detalle rojo">fuera de perímetro</div></div>
       </div>
       <div class="panel">
         <div class="panel-header"><h3><span class="punto-vivo"></span>Últimos fichajes</h3></div>
         <table class="tabla">
-          <thead><tr><th>Fecha</th><th>Empleado</th><th>Entrada</th><th>Salida</th><th>Duración</th><th>Comida</th><th>Obra</th></tr></thead>
+          <thead><tr><th>Empleado</th><th>Entrada</th><th>Salida</th><th>Duración</th><th>Comida</th><th>Obra</th><th>Estado</th></tr></thead>
           <tbody id="tabla-dashboard-fichajes"><tr><td colspan="7" style="text-align:center;color:#999;padding:20px;">Cargando…</td></tr></tbody>
         </table>
       </div>
       <div class="panel" id="panel-alertas-gps">
-        <div class="panel-header"><h3>⚠️ Alertas GPS — Fuera de perímetro</h3><button class="btn btn-secundario" style="font-size:12px;padding:6px 12px;" onclick="cargarAlertasGPS()">Actualizar</button></div>
+        <div class="panel-header"><h3>📍 Alertas GPS · fuera de perímetro</h3><button class="btn btn-secundario" style="font-size:12px;padding:6px 12px;" onclick="cargarAlertasGPS()">Actualizar</button></div>
         <table class="tabla">
           <thead><tr><th>Empleado</th><th>Obra</th><th>Salió del perímetro</th><th>Volvió</th><th>Duración fuera</th><th>Distancia máx.</th></tr></thead>
           <tbody id="tabla-alertas-gps"><tr><td colspan="6" style="text-align:center;color:#999;padding:20px;">Sin alertas hoy</td></tr></tbody>
@@ -321,7 +441,7 @@
       </div>
       <div class="panel">
         <table class="tabla">
-          <thead><tr><th>ID</th><th>Nombre</th><th>PIN</th><th>Rol</th><th>H. pactadas</th><th>Estado</th><th>Acciones</th></tr></thead>
+          <thead><tr><th>Trabajador</th><th>ID</th><th>PIN</th><th>Rol</th><th>Horas pactadas</th><th>Estado</th><th></th></tr></thead>
           <tbody id="tabla-trabajadores"><tr><td colspan="7" style="text-align:center;color:#999;padding:20px;">Cargando…</td></tr></tbody>
         </table>
       </div>
@@ -335,8 +455,8 @@
       </div>
       <div class="panel">
         <table class="tabla">
-          <thead><tr><th>Código</th><th>Nombre</th><th>Dirección</th><th>Estado</th><th>GPS</th><th>Acciones</th></tr></thead>
-          <tbody id="tabla-obras"><tr><td colspan="5" style="text-align:center;color:#999;padding:20px;">Cargando…</td></tr></tbody>
+          <thead><tr><th>Obra</th><th>Código</th><th>Dirección</th><th>Estado</th><th>GPS</th><th></th></tr></thead>
+          <tbody id="tabla-obras"><tr><td colspan="6" style="text-align:center;color:#999;padding:20px;">Cargando…</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -344,25 +464,25 @@
     <!-- FICHAJES -->
     <div class="admin-pagina" id="pag-fichajes">
       <div class="page-header"><div><h1>Fichajes</h1><div class="subt">Filtra por empleado y mes</div></div></div>
-      <div class="panel" style="padding:20px 24px 0;">
-        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px;">
-          <select id="filtro-empleado" style="padding:8px 12px;border:2px solid #e5e5e5;border-radius:8px;font-size:14px;min-width:180px;">
+      <div class="panel">
+        <div class="filtros">
+          <select id="filtro-empleado" style="min-width:180px;">
             <option value="">Todos los empleados</option>
           </select>
-          <select id="filtro-mes" style="padding:8px 12px;border:2px solid #e5e5e5;border-radius:8px;font-size:14px;">
+          <select id="filtro-mes">
             <option value="">Todos los meses</option>
             <option value="0">Enero</option><option value="1">Febrero</option><option value="2">Marzo</option>
             <option value="3">Abril</option><option value="4">Mayo</option><option value="5">Junio</option>
             <option value="6">Julio</option><option value="7">Agosto</option><option value="8">Septiembre</option>
             <option value="9">Octubre</option><option value="10">Noviembre</option><option value="11">Diciembre</option>
           </select>
-          <input type="number" id="filtro-anio" placeholder="Año" value="2026" style="padding:8px 10px;border:2px solid #e5e5e5;border-radius:8px;font-size:14px;width:88px;">
+          <input type="number" id="filtro-anio" placeholder="Año" value="2026" style="width:92px;">
           <button class="btn btn-primario" onclick="filtrarFichajes()">Filtrar</button>
         </div>
         <div style="overflow-x:auto;">
           <table class="tabla">
             <thead><tr><th>Fecha</th><th>Empleado</th><th>Entrada</th><th>Salida</th><th>Duración</th><th>Comida</th><th>Obra</th><th>GPS entrada</th><th>GPS salida</th><th>Distancia</th></tr></thead>
-            <tbody id="tabla-fichajes"><tr><td colspan="9" style="text-align:center;color:#999;padding:20px;">Cargando…</td></tr></tbody>
+            <tbody id="tabla-fichajes"><tr><td colspan="10" style="text-align:center;color:#999;padding:20px;">Cargando…</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -371,14 +491,16 @@
     <!-- HORAS -->
     <div class="admin-pagina" id="pag-horas">
       <div class="page-header">
-        <div><h1>Informe de horas</h1><div class="subt" id="informe-subt">Horas ordinarias y extras por semana</div></div>
+        <div><h1>Informe de horas</h1><div class="subt" id="informe-subt">Por semana · ordinarias hasta 8 h al día, el resto extras</div></div>
       </div>
-      <div class="panel" style="padding:20px 24px;">
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
-          <button class="btn btn-primario" id="btn-modo-semana" onclick="setModoInforme('semana')">Por semana</button>
-          <button class="btn" id="btn-modo-mes" onclick="setModoInforme('mes')">Por mes</button>
-          <input type="week" id="semana-input" style="padding:10px 14px;border:2px solid #e5e5e5;border-radius:10px;font-size:14px;outline:none;">
-          <input type="month" id="mes-input" style="padding:10px 14px;border:2px solid #e5e5e5;border-radius:10px;font-size:14px;outline:none;display:none;">
+      <div class="panel">
+        <div class="filtros">
+          <div class="seg">
+            <button class="btn btn-primario" id="btn-modo-semana" onclick="setModoInforme('semana')">Por semana</button>
+            <button class="btn" id="btn-modo-mes" onclick="setModoInforme('mes')">Por mes</button>
+          </div>
+          <input type="week" id="semana-input">
+          <input type="month" id="mes-input" style="display:none;">
           <button class="btn btn-primario" onclick="cargarInformeHoras()">Ver informe</button>
         </div>
         <div style="overflow-x:auto;">
@@ -408,8 +530,8 @@
       </div>
       <div class="panel">
         <table class="tabla">
-          <thead><tr><th>ID</th><th>Empleado</th><th>Mes</th><th>Año</th><th>Estado</th><th>Acciones</th></tr></thead>
-          <tbody id="tabla-nominas"><tr><td colspan="6" style="text-align:center;color:#999;padding:20px;">Cargando…</td></tr></tbody>
+          <thead><tr><th>Empleado</th><th>Mes</th><th>Estado</th><th></th></tr></thead>
+          <tbody id="tabla-nominas"><tr><td colspan="4" style="text-align:center;color:#999;padding:20px;">Cargando…</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -604,7 +726,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
-<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbzmmpGQ8h14zBaNK_eXCkNVCCzQBTLQk_3l6M-mGCdjrk6qaCzVd2TnmBdZgiOk9kaW/exec';
@@ -623,7 +744,7 @@ const TRADUCCIONES = {
     resumenMes: 'Resumen del mes', horasMes: 'horas este mes', horasOrdinarias: 'ordinarias', horasExtras: 'extras',
     misNominas: 'Mis nóminas', cargando: 'Cargando…',
     ficharEntrada: '📷 Fichar entrada', ficharSalida: '📷 Fichar salida',
-    dentroTurno: '🟢 Estás trabajando', fueraTurno: '⚪ Fuera de turno',
+    dentroTurno: 'Estás trabajando', fueraTurno: 'Fuera de turno', enPausa: 'En pausa de comida',
     navDashboard: 'Dashboard', navTrabajadores: 'Trabajadores', navObras: 'Obras',
     navFichajes: 'Fichajes', navHoras: 'Horas', navNominas: 'Nóminas',
     nuevaTrabajador: '+ Nuevo trabajador', nuevaObra: '+ Nueva obra',
@@ -654,7 +775,7 @@ const TRADUCCIONES = {
     resumenMes: 'Resum del mes', horasMes: 'hores aquest mes', horasOrdinarias: 'ordinàries', horasExtras: 'extres',
     misNominas: 'Les meves nòmines', cargando: 'Carregant…',
     ficharEntrada: '📷 Fitxar entrada', ficharSalida: '📷 Fitxar sortida',
-    dentroTurno: '🟢 Estàs treballant', fueraTurno: '⚪ Fora de torn',
+    dentroTurno: 'Estàs treballant', fueraTurno: 'Fora de torn', enPausa: 'En pausa per dinar',
     navDashboard: 'Dashboard', navTrabajadores: 'Treballadors', navObras: 'Obres',
     navFichajes: 'Fitxades', navHoras: 'Hores', navNominas: 'Nòmines',
     nuevaTrabajador: '+ Nou treballador', nuevaObra: '+ Nova obra',
@@ -685,7 +806,7 @@ const TRADUCCIONES = {
     resumenMes: 'Resumo do mês', horasMes: 'horas este mês', horasOrdinarias: 'ordinárias', horasExtras: 'extras',
     misNominas: 'As minhas folhas', cargando: 'A carregar…',
     ficharEntrada: '📷 Registar entrada', ficharSalida: '📷 Registar saída',
-    dentroTurno: '🟢 Está a trabalhar', fueraTurno: '⚪ Fora de turno',
+    dentroTurno: 'Está a trabalhar', fueraTurno: 'Fora de turno', enPausa: 'Em pausa para almoço',
     navDashboard: 'Dashboard', navTrabajadores: 'Trabalhadores', navObras: 'Obras',
     navFichajes: 'Registos', navHoras: 'Horas', navNominas: 'Folhas de pagamento',
     nuevaTrabajador: '+ Novo trabalhador', nuevaObra: '+ Nova obra',
@@ -764,6 +885,7 @@ let todosFichajes = [];
 let listaObras = [];
 let _realtimeInterval = null;
 let _fichandoAhora = false;
+let _gpsPrevio = null;        // promesa con la ubicación, pedida al abrir la cámara
 
 // ── SESIÓN ─────────────────────────────────────────────────
 function guardarSesion(token, rol, trabajador, expira) {
@@ -854,18 +976,47 @@ document.getElementById('input-pin').addEventListener('keypress', e => {
 });
 
 // ── ROUTING ────────────────────────────────────────────────
+// Iniciales para los avatares: "Joao Coelho" → "JC", "Joao" → "J"
+function iniciales(nombre, max = 2) {
+  return String(nombre || '?').trim().split(/\s+/).slice(0, max).map(p => p[0] || '').join('').toUpperCase() || '?';
+}
+// Ojito de la tabla de trabajadores: muestra u oculta el PIN de esa fila
+function alternarPin(boton) {
+  const valor = boton.previousElementSibling;
+  const visible = valor.textContent !== '••••';
+  valor.textContent = visible ? '••••' : valor.dataset.pin;
+  boton.classList.toggle('activo', !visible);
+  boton.title = visible ? 'Ver PIN' : 'Ocultar PIN';
+}
+// Celda de tabla con las iniciales y el nombre del trabajador
+function celdaPersona(nombre, extra = '') {
+  return `<div class="persona"><span class="ini">${iniciales(nombre)}</span>${nombre}${extra}</div>`;
+}
+
 function entrarApp() {
+  const nombreVisible = estado.trabajador.nombre_corto || estado.trabajador.nombre;
   if (estado.rol === 'admin') {
-    document.getElementById('nombre-admin').textContent = estado.trabajador.nombre_corto || estado.trabajador.nombre;
+    document.getElementById('nombre-admin').textContent = nombreVisible;
+    document.getElementById('admin-inicial').textContent = iniciales(nombreVisible, 1);
     document.getElementById('fecha-hoy').textContent = new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
     mostrarPantalla('pantalla-admin');
     cargarDatosAdmin();
   } else {
-    document.getElementById('nombre-empleado').textContent = estado.trabajador.nombre_corto || estado.trabajador.nombre;
+    document.getElementById('nombre-empleado').textContent = nombreVisible;
+    document.getElementById('avatar-empleado').textContent = iniciales(nombreVisible, 1);
     mostrarPantalla('pantalla-empleado');
     refrescarEmpleado();
+    // Antes: 3 llamadas al servidor cada minuto por cada móvil. Ahora el contador avanza solo
+    // y solo se pregunta el estado cada 5 min, y únicamente si la app está en pantalla.
     clearInterval(_realtimeInterval);
-    _realtimeInterval = setInterval(refrescarEmpleado, 60000);
+    let _ultimaConsulta = Date.now();
+    _realtimeInterval = setInterval(() => {
+      tickHorasHoy();
+      if (document.visibilityState === 'visible' && Date.now() - _ultimaConsulta >= 5 * 60000) {
+        _ultimaConsulta = Date.now();
+        cargarEstadoHoy();
+      }
+    }, 60000);
   }
 }
 
@@ -888,7 +1039,7 @@ function setModoInforme(modo) {
     inpMes.style.display = '';
     btnMes.classList.add('btn-primario');
     btnSem.classList.remove('btn-primario');
-    subt.textContent = 'Horas ordinarias y extras del mes completo';
+    subt.textContent = 'Mes completo · ordinarias hasta 8 h al día, el resto extras';
     thead.innerHTML = '<tr><th>Empleado</th><th>Total</th><th style="color:#16a34a;">Ordinarias</th><th style="color:#dc2626;">Extras</th></tr>';
     tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#999;padding:24px;">Selecciona un mes y pulsa "Ver informe"</td></tr>';
   } else {
@@ -896,7 +1047,7 @@ function setModoInforme(modo) {
     inpMes.style.display = 'none';
     btnSem.classList.add('btn-primario');
     btnMes.classList.remove('btn-primario');
-    subt.textContent = 'Horas ordinarias y extras por semana';
+    subt.textContent = 'Por semana · ordinarias hasta 8 h al día, el resto extras';
     thead.innerHTML = '<tr><th>Empleado</th><th>Lun</th><th>Mar</th><th>Mié</th><th>Jue</th><th>Vie</th><th>Sáb</th><th>Dom</th><th>Total</th><th style="color:#16a34a;">Ordinarias</th><th style="color:#dc2626;">Extras</th></tr>';
     tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;color:#999;padding:24px;">Selecciona una semana y pulsa "Ver informe"</td></tr>';
   }
@@ -931,7 +1082,7 @@ async function cargarInformeHoras() {
       const empId = trab ? trab.id : '';
       const colsDias = modoInforme === 'mes' ? '' : (e.dias || []).map(h => `<td>${h > 0 ? hm(h) : '—'}</td>`).join('');
       return `<tr style="cursor:pointer;" title="Ver fichajes de ${e.nombre}" onclick="verFichajesEmpleado('${empId}')">
-        <td><b>${e.nombre}</b> <span style="font-size:11px;color:#2563eb;">↗ ver fichajes</span></td>
+        <td>${celdaPersona(e.nombre, ' <span class="accion-link" style="font-size:12px;">ver fichajes</span>')}</td>
         ${colsDias}
         <td><b>${hm(e.total)}</b></td>
         <td style="color:#16a34a;font-weight:700;">${hm(e.ordinarias)}</td>
@@ -973,7 +1124,7 @@ function filtrarFichajes() {
     g.eventos.sort((a,b) => a.ts - b.ts);
     let entrada = null, pausa = null, comidaMin = 0;
     g.eventos.forEach(ev => {
-      const tp = String(ev.tipo).toLowerCase();
+      const tp = String(ev.tipo).trim().toLowerCase();
       if (tp === 'entrada') { entrada = ev; }
       else if (tp === 'pausa comida') { pausa = ev; }
       else if (tp === 'vuelta comida' && pausa) { comidaMin += Math.round((ev.ts - pausa.ts) / 60000); pausa = null; }
@@ -990,8 +1141,8 @@ function filtrarFichajes() {
   const dur = (e, s) => {
     if (!s) {
       if (e.ts.toDateString() !== new Date().toDateString())
-        return '<span style="color:#dc2626;font-size:12px;font-weight:600;">Sin salida</span>';
-      return '<span style="color:#f59e0b;font-size:12px;">En turno</span>';
+        return '<span class="pill rojo">Sin salida</span>';
+      return '<span class="pill verde">En turno</span>';
     }
     const m = Math.round((s.ts - e.ts) / 60000);
     return `${Math.floor(m/60)}h ${m%60}min`;
@@ -1010,8 +1161,8 @@ function filtrarFichajes() {
     if (isNaN(km)) return '—';
     const txt = km >= 1000 ? (km/1000).toFixed(1) + ' km' : Math.round(km) + ' m';
     return km > 500
-      ? `<span style="color:#dc2626;font-weight:700;">⚠️ ${txt}</span>`
-      : `<span style="color:#16a34a;">${txt}</span>`;
+      ? `<span class="pill rojo">⚠️ ${txt}</span>`
+      : `<span class="pill verde">${txt}</span>`;
   };
   const obraLabel = (obraId, entradaEv) => {
     const ob = obrasMap[obraId];
@@ -1027,9 +1178,9 @@ function filtrarFichajes() {
   tbody.innerHTML = jornadas.length
     ? jornadas.map(j => `<tr>
         <td>${j.fecha.toLocaleDateString('es-ES')}</td>
-        <td><b>${nombresMap[j.tid] || j.tid}</b></td>
-        <td style="color:#16a34a;font-weight:600;">${fmt(j.entrada.ts)}</td>
-        <td style="color:#dc2626;font-weight:600;">${j.salida ? fmt(j.salida.ts) : '<span style="color:#f59e0b;">—</span>'}</td>
+        <td>${celdaPersona(nombresMap[j.tid] || j.tid)}</td>
+        <td>${fmt(j.entrada.ts)}</td>
+        <td>${j.salida ? fmt(j.salida.ts) : '—'}</td>
         <td>${dur(j.entrada, j.salida)}</td>
         <td>${j.comida ? j.comida + ' min' : '—'}</td>
         <td>${obraLabel(j.obra, j.entrada)}</td>
@@ -1073,7 +1224,7 @@ async function cargarDatosAdmin() {
     const _ini = new Date(_ahora.getFullYear(), _ahora.getMonth(), _ahora.getDate());
     const _fin = new Date(_ini.getTime() + 864e5);
     const _fhoy = (res.fichajes || []).filter(f => { const ts = new Date(f.timestamp); return ts >= _ini && ts < _fin; });
-    const _ult = {}; _fhoy.forEach(f => { _ult[f.trabajador_id] = String(f.tipo).toLowerCase(); });
+    const _ult = {}; _fhoy.forEach(f => { _ult[f.trabajador_id] = String(f.tipo).trim().toLowerCase(); });
     document.getElementById('kpi-activos').textContent      = Object.values(_ult).filter(tp => tp === 'entrada' || tp === 'vuelta comida').length;
     document.getElementById('kpi-fichajes-hoy').textContent = _fhoy.length;
     document.getElementById('kpi-nominas').textContent      = (res.nominas || []).filter(n => n.estado === 'pendiente').length;
@@ -1083,12 +1234,13 @@ async function cargarDatosAdmin() {
     document.getElementById('subt-trabajadores').textContent = listaTrabajadores.length + ' registrados';
     document.getElementById('tabla-trabajadores').innerHTML = listaTrabajadores.length
       ? listaTrabajadores.map(tr => `<tr>
-          <td><code style="background:#f0f0f0;padding:2px 6px;border-radius:4px;font-size:12px;">${tr.id}</code></td>
-          <td><b>${tr.nombre}</b></td><td><code>${tr.pin}</code></td>
-          <td><span class="badge ${tr.rol === 'admin' ? 'badge-amarillo' : 'badge-gris'}">${tr.rol}</span></td>
-          <td>${tr.horas_pactadas}h</td>
+          <td>${celdaPersona(tr.nombre)}</td>
+          <td><span class="badge badge-gris">${tr.id}</span></td>
+          <td><span class="pin-celda"><span class="pin-valor" data-pin="${tr.pin}">••••</span><button class="ojo" title="Ver PIN" aria-label="Ver PIN" onclick="alternarPin(this)">👁</button></span></td>
+          <td><span class="badge ${tr.rol === 'admin' ? 'badge-amarillo' : 'badge-gris'}">${tr.rol === 'admin' ? 'Admin' : 'Empleado'}</span></td>
+          <td>${tr.horas_pactadas} h</td>
           <td><span class="badge ${tr.activo ? 'badge-verde' : 'badge-rojo'}">${tr.activo ? t('activo') : t('inactivo')}</span></td>
-          <td><span class="accion-link" onclick="abrirEditarTrabajador('${tr.id}','${(tr.nombre||'').replace(/'/g,"&#39;")}','${(tr.nombre_corto||'').replace(/'/g,"&#39;")}','${tr.pin}','${tr.horas_pactadas}','${tr.activo}')">Editar</span> · <button class="btn-eliminar" onclick="eliminarTrabajador('${tr.id}','${tr.nombre}')">${t('borrar')}</button></td>
+          <td><div class="acciones"><button class="mini" onclick="abrirEditarTrabajador('${tr.id}','${(tr.nombre||'').replace(/'/g,"&#39;")}','${(tr.nombre_corto||'').replace(/'/g,"&#39;")}','${tr.pin}','${tr.horas_pactadas}','${tr.activo}')">Editar</button><button class="mini del" onclick="eliminarTrabajador('${tr.id}','${(tr.nombre||'').replace(/'/g,"&#39;")}')">${t('borrar')}</button></div></td>
         </tr>`).join('')
       : `<tr><td colspan="7" style="text-align:center;color:#999;padding:20px;">${t('sinTrabajadores')}</td></tr>`;
 
@@ -1096,11 +1248,12 @@ async function cargarDatosAdmin() {
     document.getElementById('subt-obras').textContent = obras.length + ' registradas';
     document.getElementById('tabla-obras').innerHTML = obras.length
       ? obras.map(o => `<tr>
-          <td><code style="background:#f0f0f0;padding:2px 6px;border-radius:4px;font-size:12px;">${o.id}</code></td>
-          <td><b>${o.nombre}</b></td><td>${o.direccion || '—'}</td>
+          <td><b>${o.nombre}</b></td>
+          <td><span class="badge badge-gris">${o.id}</span></td>
+          <td>${o.direccion || '—'}</td>
           <td><span class="badge ${o.activa ? 'badge-verde' : 'badge-gris'}">${o.activa ? t('activa') : t('inactiva')}</span></td>
-          <td>${String(o.libre).toUpperCase() === 'TRUE' ? '<span class="badge badge-amarillo">📍 Libre</span>' : (o.lat && o.lng ? '<span class="badge badge-verde">✓ GPS</span>' : '<span class="badge badge-rojo">Sin GPS</span>')}</td>
-          <td><span class="accion-link" onclick="verQR('${o.qr_token}','${o.nombre}')">Ver QR</span> · <span class="accion-link" onclick="abrirEditarObra('${o.id}','${(o.nombre||'').replace(/'/g,"&#39;")}','${o.lat||''}','${o.lng||''}','${(o.direccion||'').replace(/'/g,"&#39;")}','${o.activa}')">Editar</span> · <span class="accion-link rojo" onclick="eliminarObra('${o.id}','${o.nombre}')">${t('borrar')}</span></td>
+          <td>${String(o.libre).toUpperCase() === 'TRUE' ? '<span class="pill lila">📍 Libre</span>' : (o.lat && o.lng ? '<span class="pill verde">✓ GPS</span>' : '<span class="pill rojo">Sin GPS</span>')}</td>
+          <td><div class="acciones"><button class="mini azul" onclick="verQR('${o.qr_token}','${(o.nombre||'').replace(/'/g,"&#39;")}')">Ver QR</button><button class="mini" onclick="abrirEditarObra('${o.id}','${(o.nombre||'').replace(/'/g,"&#39;")}','${o.lat||''}','${o.lng||''}','${(o.direccion||'').replace(/'/g,"&#39;")}','${o.activa}')">Editar</button><button class="mini del" onclick="eliminarObra('${o.id}','${(o.nombre||'').replace(/'/g,"&#39;")}')">${t('borrar')}</button></div></td>
         </tr>`).join('')
       : `<tr><td colspan="6" style="text-align:center;color:#999;padding:20px;">${t('sinObras')}</td></tr>`;
 
@@ -1126,7 +1279,7 @@ async function cargarDatosAdmin() {
         g.evs.sort((a,b) => a.ts - b.ts);
         let ent = null, pausa = null, comidaMin = 0;
         g.evs.forEach(ev => {
-          const tp = String(ev.tipo).toLowerCase();
+          const tp = String(ev.tipo).trim().toLowerCase();
           if (tp === 'entrada') { ent = ev; }
           else if (tp === 'pausa comida') { pausa = ev; }
           else if (tp === 'vuelta comida' && pausa) { comidaMin += Math.round((ev.ts - pausa.ts) / 60000); pausa = null; }
@@ -1161,31 +1314,34 @@ async function cargarDatosAdmin() {
       const jdsHoy = jds.filter(j => j.fecha.toDateString() === hoy);
       document.getElementById('tabla-dashboard-fichajes').innerHTML = jdsHoy.length
         ? jdsHoy.map(j => `<tr>
-            <td style="color:#666;font-size:12px;">${j.fecha.toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit'})}</td>
-            <td><b>${nb[j.tid] || j.tid}</b></td>
-            <td style="color:#16a34a;font-weight:600;">${fmt(j.ent.ts)}</td>
-            <td style="color:#dc2626;font-weight:600;">${j.sal ? fmt(j.sal.ts) : '<span style="color:#f59e0b;">—</span>'}</td>
-            <td>${dur(j.ent, j.sal)}</td>
+            <td>${celdaPersona(nb[j.tid] || j.tid)}</td>
+            <td>${fmt(j.ent.ts)}</td>
+            <td>${j.sal ? fmt(j.sal.ts) : '—'}</td>
+            <td>${j.sal ? dur(j.ent, j.sal) : '—'}</td>
             <td>${j.comida ? j.comida + ' min' : '—'}</td>
             <td>${_obraCell(j)}</td>
+            <td>${j.sal ? '<span class="pill gris">Terminó</span>' : '<span class="pill verde">En turno</span>'}</td>
           </tr>`).join('')
         : `<tr><td colspan="7" style="text-align:center;color:#999;padding:20px;">${t('sinFihajesHoy')}</td></tr>`;
     }
 
     const nominas = res.nominas || [];
-    const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    const nombrePorId = {}; listaTrabajadores.forEach(tr => { nombrePorId[tr.id] = tr.nombre; });
+    const pendientes = nominas.filter(n => n.estado !== 'firmada').length;
+    const badgeNom = document.getElementById('badge-nominas');
+    badgeNom.textContent = pendientes; badgeNom.hidden = pendientes === 0;
     document.getElementById('tabla-nominas').innerHTML = nominas.length
       ? nominas.map(n => `<tr>
-          <td><code style="background:#f0f0f0;padding:2px 6px;border-radius:4px;font-size:12px;">${n.id}</code></td>
-          <td>${n.trabajador_id}</td>
-          <td>${meses[(n.mes||1)-1]}</td><td>${n.anio}</td>
-          <td><span class="badge ${n.estado === 'firmada' ? 'badge-verde' : 'badge-amarillo'}">${n.estado}</span></td>
-          <td>
-            ${n.url_pdf ? `<a href="${n.url_pdf}" target="_blank" class="accion-link">Ver PDF</a>` : '—'}
-            ${n.estado === 'firmada' ? ` · <a href="${n.url_pdf}" download class="accion-link" style="color:#16a34a;">⬇ Descargar firmada</a>` : ''}
-          </td>
+          <td>${celdaPersona(nombrePorId[n.trabajador_id] || n.trabajador_id)}</td>
+          <td>${meses[(n.mes||1)-1]} ${n.anio}</td>
+          <td><span class="badge ${n.estado === 'firmada' ? 'badge-verde' : 'badge-amarillo'}">${n.estado === 'firmada' ? 'Firmada' : 'Pendiente'}</span></td>
+          <td><div class="acciones">
+            ${n.url_pdf ? `<a href="${n.url_pdf}" target="_blank" class="mini azul">Ver PDF</a>` : ''}
+            ${n.estado === 'firmada' ? `<a href="${n.url_pdf}" download class="mini verde">⬇ Descargar firmada</a>` : ''}
+          </div></td>
         </tr>`).join('')
-      : `<tr><td colspan="6" style="text-align:center;color:#999;padding:20px;">${t('sinNominas')}</td></tr>`;
+      : `<tr><td colspan="4" style="text-align:center;color:#999;padding:20px;">${t('sinNominas')}</td></tr>`;
 
     cargarAlertasGPS();
   } catch(e) { console.error(e); }
@@ -1431,6 +1587,20 @@ function leerArchivoBase64(file) {
 }
 
 // ── FIRMA EMPLEADO ─────────────────────────────────────────
+// pdf-lib (200 KB) solo se descarga cuando alguien va a firmar, no cada vez que se abre la app
+let _pdfLibPromesa = null;
+function cargarPdfLib() {
+  if (window.PDFLib) return Promise.resolve();
+  if (!_pdfLibPromesa) _pdfLibPromesa = new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js';
+    s.onload = resolve;
+    s.onerror = () => { _pdfLibPromesa = null; reject(new Error('No se pudo cargar el lector de PDF')); };
+    document.head.appendChild(s);
+  });
+  return _pdfLibPromesa;
+}
+
 let firmaGuardadaDataUrl = null;
 
 function verPdfEmpleado(nominaId, url) {
@@ -1536,6 +1706,7 @@ async function procesarFirma() {
 
     toast('Añadiendo firma al PDF…');
     const pdfBytes = Uint8Array.from(atob(pdfRes.pdf_base64), c => c.charCodeAt(0));
+    await cargarPdfLib();
     const pdfDoc   = await PDFLib.PDFDocument.load(pdfBytes);
     const sigBytes = Uint8Array.from(atob(sigDataUrl.split(',')[1]), c => c.charCodeAt(0));
     const sigImg   = await pdfDoc.embedPng(sigBytes);
@@ -1583,10 +1754,12 @@ function calcDistanciaJS(lat1, lng1, lat2, lng2) {
 }
 
 function iniciarMonitorGPS(obraLat, obraLng) {
+  // Si ya está vigilando esa misma obra no se reinicia (si no, el temporizador nunca llegaría a saltar)
+  if (_gpsMonitorInterval && _obraGPS && _obraGPS.lat === parseFloat(obraLat) && _obraGPS.lng === parseFloat(obraLng)) return;
   detenerMonitorGPS();
   if (!obraLat || !obraLng) return;
   _obraGPS = { lat: parseFloat(obraLat), lng: parseFloat(obraLng) };
-  _gpsMonitorInterval = setInterval(verificarPosicionGPS, 60000);
+  _gpsMonitorInterval = setInterval(verificarPosicionGPS, 5 * 60000);   // cada 5 min (antes cada minuto)
 }
 
 function detenerMonitorGPS() {
@@ -1604,26 +1777,37 @@ function verificarPosicionGPS() {
 }
 
 // ── VISTA EMPLEADO ─────────────────────────────────────────
-async function refrescarEmpleado() {
-  try {
-    const hoy = await llamarAPI('estado_hoy', { token: estado.token });
-    if (hoy.ok) {
+// Estado de hoy tal como lo devuelve el servidor (estado_hoy o la respuesta de fichar)
+let _hoy = null;              // { minutos_hoy, estado, obra_lat, obra_lng }
+let _hoyRecibido = 0;         // momento en que llegó, para ir sumando minutos sin preguntar al servidor
+
+// Barra del día: la escala va de 0 a 10 h (o más si se pasa); la marca de 8 h queda al 80 %
+function pintarBarraHoy(minutos) {
+  const escala = Math.max(600, minutos);
+  document.getElementById('barra-hoy-ord').style.width = (Math.min(minutos, 480) / escala * 100) + '%';
+  document.getElementById('barra-hoy-ext').style.width = (Math.max(0, minutos - 480) / escala * 100) + '%';
+}
+
+function pintarEstadoHoy(hoy) {
+      _hoy = hoy; _hoyRecibido = Date.now();
       document.getElementById('horas-hoy').innerHTML = formatearHorasMin(hoy.minutos_hoy);
+      pintarBarraHoy(hoy.minutos_hoy);
       const btn = document.getElementById('btn-fichar');
       const estadoEl = document.getElementById('estado-actual');
       const est = hoy.estado || (hoy.dentro ? 'entrada' : 'libre');
+      document.getElementById('tarjeta-fichaje').dataset.estado = est;   // colorea la pastilla de estado
       if (est === 'entrada') {
-        estadoEl.textContent = '🟢 Estás trabajando';
+        estadoEl.textContent = t('dentroTurno');
         btn.className = 'btn-fichar btn-pausa';
         btn.innerHTML = '🍽 Pausa para comer';
         if (hoy.obra_lat && hoy.obra_lng) iniciarMonitorGPS(hoy.obra_lat, hoy.obra_lng);
       } else if (est === 'pausa_comida') {
-        estadoEl.textContent = '🍽 En pausa de comida';
+        estadoEl.textContent = t('enPausa');
         btn.className = 'btn-fichar btn-vuelta';
         btn.innerHTML = '↩ Volver de comida';
         detenerMonitorGPS();
       } else if (est === 'vuelta_comida') {
-        estadoEl.textContent = '🟢 Estás trabajando';
+        estadoEl.textContent = t('dentroTurno');
         btn.className = 'btn-fichar btn-salida';
         btn.innerHTML = t('ficharSalida');
         if (hoy.obra_lat && hoy.obra_lng) iniciarMonitorGPS(hoy.obra_lat, hoy.obra_lng);
@@ -1633,25 +1817,51 @@ async function refrescarEmpleado() {
         btn.innerHTML = t('ficharEntrada');
         detenerMonitorGPS();
       }
-    } else if (hoy.error && hoy.error.includes('Sesión')) { cerrarSesion(); return; }
-  } catch {}
+}
 
+// Mientras está trabajando, el contador "trabajadas hoy" avanza solo cada minuto
+function tickHorasHoy() {
+  if (!_hoy || !(_hoy.estado === 'entrada' || _hoy.estado === 'vuelta_comida')) return;
+  const extra = Math.floor((Date.now() - _hoyRecibido) / 60000);
+  document.getElementById('horas-hoy').innerHTML = formatearHorasMin(_hoy.minutos_hoy + extra);
+  pintarBarraHoy(_hoy.minutos_hoy + extra);
+}
+
+async function cargarEstadoHoy() {
+  try {
+    const hoy = await llamarAPI('estado_hoy', { token: estado.token });
+    if (hoy.ok) pintarEstadoHoy(hoy);
+  } catch {}
+}
+
+// Al abrir la app y después de fichar: las 3 consultas a la vez, no una detrás de otra
+function refrescarEmpleado() {
+  return Promise.all([cargarEstadoHoy(), cargarResumenMes(), cargarNominas()]);
+}
+
+async function cargarResumenMes() {
   try {
     const mes = await llamarAPI('resumen_mensual', { token: estado.token });
     if (mes.ok) {
       const minToHm = m => { const h = Math.floor(m/60), min = m%60; return `${h}<small>h</small> ${min}<small>min</small>`; };
-      let ordinariasMin = 0, extrasMin = 0;
-      (mes.dias || []).forEach(d => {
-        const dayMin = d.minutos || 0;
-        ordinariasMin += Math.min(dayMin, 480);
-        extrasMin     += Math.max(0, dayMin - 480);
-      });
+      // El reparto ordinarias/extras (8 h al día) lo calcula el servidor, igual que en el informe del admin
+      let ordinariasMin = mes.ordinarias_minutos, extrasMin = mes.extras_minutos;
+      if (ordinariasMin == null) {
+        ordinariasMin = 0; extrasMin = 0;
+        (mes.dias || []).forEach(d => {
+          const dayMin = d.minutos || 0;
+          ordinariasMin += Math.min(dayMin, 480);
+          extrasMin     += Math.max(0, dayMin - 480);
+        });
+      }
       document.getElementById('stat-mes-horas').innerHTML      = minToHm(Math.round(mes.total_minutos));
       document.getElementById('stat-mes-ordinarias').innerHTML = minToHm(Math.round(ordinariasMin));
       document.getElementById('stat-mes-extras').innerHTML     = minToHm(Math.round(extrasMin));
     }
   } catch {}
+}
 
+async function cargarNominas() {
   try {
     const nom = await llamarAPI('mis_nominas', { token: estado.token });
     const cont = document.getElementById('lista-nominas');
@@ -1685,6 +1895,14 @@ async function abrirEscaner() {
   if (_fichandoAhora) return;   // ya hay un fichaje en curso: no reabrir la cámara
   if (!navigator.geolocation) { toast('Tu navegador no soporta GPS', 'error'); return; }
   document.getElementById('modal-escaner').classList.add('activa');
+  // El GPS se pide ya, mientras el trabajador apunta al QR: cuando lo lea, la ubicación suele estar lista
+  _gpsPrevio = new Promise(resolve => {
+    navigator.geolocation.getCurrentPosition(
+      pos => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      ()  => resolve(null),
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
+    );
+  });
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
     estado.videoStream = stream;
@@ -1720,41 +1938,38 @@ async function procesarQR(qrToken) {
   const btn = document.getElementById('btn-fichar');
   btn.disabled = true;
   btn.innerHTML = '<span class="loader"></span> Fichando…';
-  toast('QR detectado, obteniendo ubicación…');
+  toast('QR detectado, enviando fichaje…');
 
-  let _fichajeEnviado = false;
-  const ficharConCoords = async (lat, lng) => {
-    if (_fichajeEnviado) return;   // evita doble fichaje (carrera GPS / timer de respaldo)
-    _fichajeEnviado = true;
-    try {
-      const res = await llamarAPI('fichar', { token: estado.token, qr_token: qrToken, lat, lng });
-      if (res.ok) {
-        const tipos = { entrada: 'Entrada', salida: 'Salida', pausa_comida: 'Pausa comida', vuelta_comida: 'Vuelta comida' };
-        toast(`✅ ${tipos[res.tipo] || res.tipo} en ${res.obra} a las ${res.hora}`, 'exito');
-        if (res.alerta) setTimeout(() => toast(`⚠️ Estás a ${res.distancia > 1000 ? (res.distancia/1000).toFixed(1)+'km' : Math.round(res.distancia)+'m'} de la obra`, 'error'), 1500);
-        if (res.tipo === 'entrada' && res.obra_lat && res.obra_lng) iniciarMonitorGPS(res.obra_lat, res.obra_lng);
-        if (res.tipo === 'salida') detenerMonitorGPS();
-        setTimeout(() => { _fichandoAhora = false; btn.disabled = false; refrescarEmpleado(); }, 3000);
-      } else {
-        toast(res.error || 'Error al fichar', 'error');
-        setTimeout(() => { _fichandoAhora = false; btn.disabled = false; refrescarEmpleado(); }, 3000);
-      }
-    } catch {
-      toast('Error de conexión', 'error');
-      setTimeout(() => { _fichandoAhora = false; btn.disabled = false; refrescarEmpleado(); }, 3000);
+  // Ubicación pedida al abrir la cámara; si aún no ha llegado se espera como mucho 3 s más
+  const pos = await Promise.race([
+    _gpsPrevio || Promise.resolve(null),
+    new Promise(r => setTimeout(() => r(null), 3000))
+  ]);
+  _gpsPrevio = null;
+
+  // Se vuelve a habilitar el botón pasados 3 s como mínimo, para que un segundo escaneo
+  // accidental del mismo QR no registre enseguida una "Pausa comida"
+  const desbloquear = () => setTimeout(() => { _fichandoAhora = false; btn.disabled = false; }, 3000);
+  try {
+    const res = await llamarAPI('fichar', { token: estado.token, qr_token: qrToken, lat: pos ? pos.lat : '', lng: pos ? pos.lng : '' });
+    if (res.ok) {
+      const tipos = { entrada: 'Entrada', salida: 'Salida', pausa_comida: 'Pausa comida', vuelta_comida: 'Vuelta comida' };
+      toast(`✅ ${tipos[res.tipo] || res.tipo} en ${res.obra} a las ${res.hora}`, 'exito');
+      if (res.alerta) setTimeout(() => toast(`⚠️ Estás a ${res.distancia > 1000 ? (res.distancia/1000).toFixed(1)+'km' : Math.round(res.distancia)+'m'} de la obra`, 'error'), 1500);
+      if (res.tipo === 'salida') detenerMonitorGPS();
+      // El servidor ya devuelve el estado nuevo: se pinta al momento, sin más llamadas
+      if (res.estado) pintarEstadoHoy({ estado: res.estado, minutos_hoy: res.minutos_hoy || 0, obra_lat: res.obra_lat, obra_lng: res.obra_lng });
+      else cargarEstadoHoy();
+      cargarResumenMes();
+    } else {
+      toast(res.error || 'Error al fichar', 'error');
+      cargarEstadoHoy();
     }
-  };
-
-  if (navigator.geolocation) {
-    const timer = setTimeout(() => ficharConCoords('', ''), 9000);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => { clearTimeout(timer); ficharConCoords(pos.coords.latitude, pos.coords.longitude); },
-      ()    => { clearTimeout(timer); ficharConCoords('', ''); },
-      { enableHighAccuracy: false, timeout: 6000, maximumAge: 30000 }
-    );
-  } else {
-    ficharConCoords('', '');
+  } catch {
+    toast('Error de conexión. Vuelve a intentarlo.', 'error');
+    cargarEstadoHoy();
   }
+  desbloquear();
 }
 
 // ── ELIMINAR TRABAJADOR / OBRA ─────────────────────────────
@@ -1789,14 +2004,37 @@ async function cargarAlertasGPS() {
     const durMin = min => min >= 60 ? `${Math.floor(min/60)}h ${min%60}min` : `${min}min`;
     document.getElementById('tabla-alertas-gps').innerHTML = alertas.length
       ? alertas.map(a => `<tr>
-          <td><b>${nb[a.trabajador_id] || a.trabajador_id}</b></td>
+          <td>${celdaPersona(nb[a.trabajador_id] || a.trabajador_id)}</td>
           <td>${a.obra_id || '—'}</td>
           <td style="color:#dc2626;font-weight:600;">${fmt(a.timestamp_salida)}</td>
-          <td>${a.timestamp_vuelta ? fmt(a.timestamp_vuelta) : '<span style="color:#f59e0b;">Aún fuera</span>'}</td>
+          <td>${a.timestamp_vuelta ? fmt(a.timestamp_vuelta) : '<span class="pill amarillo">Aún fuera</span>'}</td>
           <td>${a.duracion_minutos != null ? durMin(a.duracion_minutos) : '—'}</td>
           <td>${a.distancia_max ? Math.round(a.distancia_max) + ' m' : '—'}</td>
         </tr>`).join('')
       : `<tr><td colspan="6" style="text-align:center;color:#999;padding:20px;">Sin alertas hoy ✅</td></tr>`;
+  } catch {}
+}
+
+// ── ACTUALIZACIÓN AUTOMÁTICA ───────────────────────────────
+// Los trabajadores no cierran nunca la app. Cuando vuelven a ella, se mira version.json en GitHub;
+// si la versión publicada es distinta de esta, la app se recarga sola (la sesión sigue, no pide PIN).
+// AL PUBLICAR UNA VERSIÓN NUEVA: cambiar APP_VERSION aquí y en version.json con el mismo valor.
+const APP_VERSION = '2026-10-01';
+
+async function comprobarActualizacion() {
+  try {
+    if (_fichandoAhora || estado.escaneando) return;                          // nunca en mitad de un fichaje
+    if (document.querySelector('.modal-bg.activa, .modal.activa')) return;    // ni con una ventana abierta
+    const res = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
+    if (!res.ok) return;
+    const { version } = await res.json();
+    if (!version || version === APP_VERSION) return;
+    // Seguro contra recargas en bucle si GitHub aún sirve el index.html antiguo unos minutos
+    let intento = null;
+    try { intento = JSON.parse(localStorage.getItem('recarga_version') || 'null'); } catch {}
+    if (intento && intento.version === version && Date.now() - intento.cuando < 15 * 60000) return;
+    try { localStorage.setItem('recarga_version', JSON.stringify({ version, cuando: Date.now() })); } catch {}
+    location.reload();
   } catch {}
 }
 
@@ -1810,6 +2048,16 @@ window.addEventListener('load', () => {
     estado.token = sesion.token; estado.rol = sesion.rol; estado.trabajador = sesion.trabajador;
     entrarApp();
   }
+
+  // Al volver a la app (desde otra app o con la pantalla apagada) se actualiza el estado de hoy
+  // y se comprueba si hay una versión nueva de la app
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible') return;
+    if (estado.token && estado.rol !== 'admin') cargarEstadoHoy();
+    comprobarActualizacion();
+  });
+  setInterval(() => { if (document.visibilityState === 'visible') comprobarActualizacion(); }, 30 * 60000);
+  comprobarActualizacion();
 
   // Service Worker (PWA Android)
   if ('serviceWorker' in navigator) {
